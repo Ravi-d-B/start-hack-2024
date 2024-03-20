@@ -4,10 +4,11 @@ version = "0.1.0"
 description = ""
 authors = []
 readme = "README.md"
-packages = [{ include = "start-hack-2024"}]
+packages = [{ include = "app", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pandas = "^2.2.1"
 
 
 [build-system]
