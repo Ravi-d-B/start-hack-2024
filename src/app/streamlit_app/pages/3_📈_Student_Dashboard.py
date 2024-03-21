@@ -2,11 +2,8 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
-<<<<<<< HEAD
 import pandas as pd
-=======
 import toml
->>>>>>> 2111aad2918cdd364bbceb13dabbe3eca6142c55
 from app.streamlit_app.database import get_student_tests
 from app.streamlit_app.utils import get_prompt_template, client
 from openpyxl.styles import Alignment, Font, PatternFill
