@@ -34,12 +34,12 @@ def plot_results(df):
     # Create subplots in a n x 2 layout, adjusting for when num_cats is 1 or 2
     if num_cats <= 2:
         fig, axs = plt.subplots(num_rows, num_cats, figsize=(10 * num_cats, 5 * num_rows),
-                                sharex=False, sharey=True)
+                                sharex=False, sharey=True, dpi=600)
         # Ensure axs is 2-dimensional
         axs = np.atleast_2d(axs)
     else:
         fig, axs = plt.subplots(num_rows, 2, figsize=(30, 7 * num_rows), sharex=False,
-                                sharey=True)
+                                sharey=True, dpi=600)
 
     # Flatten the axs array to simplify indexing
     axs = axs.flatten()
@@ -115,26 +115,28 @@ evals["cat3"] = evals["code"].str.split(".").str[3]
 plot_results(evals)
 
 level_options = {
-    "Year 1": [1] + [None] * 6,
-    "Year 2": [4, 3, 2, 1, 1, 1, None],
-    "Year 3": [4, 4, 4, 4, 4, 3, 3]
+    " ": None,
+    "Year 1": [2] + [None] * 6,
+    "Year 2": [4, 4, 4, 1, 4, None, None],
+    "Year 3": [4, 4, 4, 1, 4, 4, 3]
 }
 
 # Add a dropdown menu for selecting the level configuration
 selected_option = st.selectbox(
     'Select the year for which you want to see the knowledge graph:',
     options=list(level_options.keys()),
-    index=2
+    index=0
 )
 
-# Get the selected levels configuration
-selected_levels = level_options[selected_option]
+if selected_option != " ":
+    # Get the selected levels configuration
+    selected_levels = level_options[selected_option]
 
-# Create the graph based on the selected levels configuration
-graph = create_graph(selected_levels)
+    # Create the graph based on the selected levels configuration
+    graph = create_graph(selected_levels)
 
-# Display the graph
-st.graphviz_chart(graph, use_container_width=True)
+    # Display the graph
+    st.graphviz_chart(graph, use_container_width=True)
 
 
 if st.button("Print Data"):
