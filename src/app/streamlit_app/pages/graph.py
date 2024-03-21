@@ -10,28 +10,52 @@ graph.attr(size='24,24')
 graph.attr(rankdir='LR')  # Left to Right direction
 
 # Basic Number Concepts
-graph.node('A', 'Read and Write Numbers up to 100', style='filled', fillcolor='lightblue')
+graph.node('A', 'Read and Write Numbers up to 10', style='filled', fillcolor='white')
 
-# Arithmetic Operations
-graph.node('B', 'Plus and Symbol +', style='filled', fillcolor='green')
-graph.node('C', 'Minus and Symbol -', style='filled', fillcolor='orange')
-graph.node('D', 'Times and Symbol ·', style='filled', fillcolor='green')
+# Layer 1 
+graph.node('B', 'Read and Write Numbers 10 to 100', style='filled', fillcolor='white')
+graph.node('C', 'Plus Symbol +', style='filled', fillcolor='white')
+graph.node('D', 'Minus Symbol -', style='filled', fillcolor='white')
+graph.node('E', 'Equal Symbol =', style='filled', fillcolor='white')
 
-# Comparisons and Relations
-graph.node('E', 'Greater Than, Smaller Than, Symbols <, >', style='filled', fillcolor='lightyellow')
-graph.node('F', 'Even, Odd Numbers', style='filled', fillcolor='lightyellow')
+# Layer 2
+graph.node('F', 'Even, Odd Numbers', style='filled', fillcolor='white')
+graph.node('G', 'Greater Than, Smaller Than, Symbols <, >', style='filled', fillcolor='white')
 
-# Advanced Operations and Concepts
-graph.node('G', 'Halve, Double', style='filled', fillcolor='lightcoral')
-graph.node('H', 'Equal and Symbol =', style='filled', fillcolor='lightcoral')
-
-# Dependencies
-graph.edges([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('A', 'F')])
-graph.edges([('B', 'G'), ('C', 'G'), ('D', 'G'), ('B', 'H'), ('C', 'H'), ('D', 'H')])
-
+# Layer 1
+graph.edges([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E')])
+# Layer 2
+graph.edges([('B', 'F'), ('C', 'G'), ('D', 'G'), ('E', 'G')])
 
 
 st.graphviz_chart(graph, use_container_width=False)
+
+
+# Create a graphlib graph object
+graph1 = graphviz.Digraph()
+graph1.attr(size='24,24')
+graph1.attr(rankdir='LR')  # Left to Right direction
+
+# Basic Number Concepts
+graph1.node('A', 'Read and Write Numbers up to 10', style='filled', fillcolor='#a3de81')
+
+# Layer 1 
+graph1.node('B', 'Read and Write Numbers 10 to 100', style='filled', fillcolor='#a3de81')
+graph1.node('C', 'Plus Symbol +', style='filled', fillcolor='#a3de81')
+graph1.node('D', 'Minus Symbol -', style='filled', fillcolor='#a3de81')
+graph1.node('E', 'Equal Symbol =', style='filled', fillcolor='#d6a947')
+
+# Layer 2
+graph1.node('F', 'Even, Odd Numbers', style='filled', fillcolor='white')
+graph1.node('G', 'Greater Than, Smaller Than, Symbols <, >', style='filled', fillcolor='#d6a947')
+
+# Layer 1
+graph1.edges([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E')])
+# Layer 2
+graph1.edges([('B', 'F'), ('C', 'G'), ('D', 'G'), ('E', 'G')])
+
+
+st.graphviz_chart(graph1, use_container_width=False)
 
 
 # Function to create the education graph with detailed objectives
