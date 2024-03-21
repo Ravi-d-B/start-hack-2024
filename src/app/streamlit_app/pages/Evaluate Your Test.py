@@ -27,17 +27,33 @@ class Test:
         return self.evaluations
 
 
-tests = get_tests()
+class StudentAnwsers:
+    def __init__(self, student_id, anwsers):
+        self.student_id = student_id
+        self.anwsers = anwsers
 
-Tests = []
+    def get_id(self):
+        return self.student_id
 
-for test_row in tests:
-    test_competencies = []
-    for c in get_test_competencies(test_row.id):
-        test_competencies.append(c.get_competency_type().type)
-    Tests.append(Test(test_row.id, test_row.test_name, test_competencies))
+    def get_anwsers(self):
+        return self.anwsers
 
-test_evaluations = {test.get_name(): test.get_evaluations() for test in Tests}
+
+loaded_tests = get_tests()
+current_test = loaded_tests[0].id
+
+tests_display = []
+test_competencies = {}
+
+for test in loaded_tests:
+    for competency in get_test_competencies(test.id):
+        competency_id = competency.id
+        competency_type = competency.get_competency_type().type
+        test_competencies[competency_type] = competency_id
+
+    tests_display.append(Test(test.id, test.test_name, test_competencies.keys()))
+
+test_evaluations = {test.get_name(): test.get_evaluations() for test in tests_display}
 
 
 # Use the select box widget
@@ -45,9 +61,7 @@ option = st.selectbox(
     'Select Test for Grading',
     test_evaluations.keys())
 
-current_test = tests[0].id
-
-for test in Tests:
+for test in tests_display:
     if test.get_name() == option:
         current_test = test.id
 
@@ -55,13 +69,14 @@ for test in Tests:
 students = get_test_students(current_test)
 
 # Create Student Marks Array
-student_marks = []
+all_student_results = []
 
 # Create a list of dictionaries, with each dictionary representing a row
 data = []
+
 for i, student in enumerate(students):
     data.clear()
-    st.subheader(f"{student.name}")
+    st.subheader(f"{student.name} - {student.id} ")
     for (question) in zip(test_evaluations[option]):
         row = {
             "Evaluations": question,
@@ -71,48 +86,56 @@ for i, student in enumerate(students):
             "Das kann ich sehr gut": False}
         data.append(row)
     df = pd.DataFrame(data)
-    edited_df = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
-    student_marks.append(edited_df)
+    question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
+    all_student_results.append(StudentAnwsers(student.id, question_answers))
 
 
-
-
-
-def find_mark(row):
-    if row[2]:
+def get_mark(result):
+    if result.iloc[1]:
         return 1
-    if row[3]:
+    if result.iloc[2]:
         return 2
-    if row[4]:
+    if result.iloc[3]:
         return 3
-    if row[5]:
+    if result.iloc[4]:
         return 4
+    else:
+        return 0
 
-for data in student_marks:
-    for idx, row in enumerate(data.itertuples(), start=1):
-        st.markdown(f"{find_mark(row)}")
+def get_competency_id(result):
+    result_type = result.iloc[0][0]
+    return test_competencies[result_type]
+
+def saveData():
+    for student_temp in all_student_results:
+        for index in range(len(student_temp.get_anwsers())):
+            question = student_temp.get_anwsers().iloc[index]
+            add_test_evaluation_to_student(student_temp.get_id(), get_competency_id(question), get_mark(question), "")
+    # modal.close()
 
 
+if(st.button("Save")):
+    saveData()
 
+# if st.button('Confirm'):
+#     saveData()
 
-# Modal Stuff
-# def saveData():
-#     print(get_test_competencies(4)[0].get_competency_type().type)
-#     modal.close()
-#
-#
 # modal = Modal(
 #     "Do you want to confirm changes?",
 #     key="confirm modal",
 # )
 #
-# st.button("Save Changes", on_click=modal.open, type="primary")
+# open_modal = st.button("Save")
+# if open_modal:
+#     modal.open()
 #
 #
 # if modal.is_open():
 #     with modal.container():
 #         col1, col2, col3 = st.columns([6, 1, 1])
 #         with col2:
-#             st.button('Confirm')
+#             if st.button('Confirm'):
+#                 saveData()
 #         with col3:
-#             st.button('Cancel', on_click=saveData)
+#             if st.button('Cancel'):
+#                 modal.close()
