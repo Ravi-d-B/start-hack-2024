@@ -149,7 +149,7 @@ def add_to_tests(test_name, date):
 
 def get_tests():
     conn = sqlite3.connect('druid.db')
-    cursor = conn.execute('SELECT * FROM tests')
+    cursor = conn.execute('SELECT * FROM tests ORDER BY id DESC')
     tests = [Test(*row) for row in cursor.fetchall()]
     conn.close()
     return tests
