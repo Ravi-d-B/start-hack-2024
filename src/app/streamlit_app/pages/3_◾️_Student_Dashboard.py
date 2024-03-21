@@ -169,7 +169,7 @@ for message in prompt_template:
 
 client = client()
 
-if st.button("Ask AI for a student progress summary"):
+if st.button("Ask AI for a student progress summary", type='primary'):
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
@@ -277,7 +277,7 @@ def export_to_excel(student):
             worksheet.column_dimensions['A'].width = 40
 
 
-if st.button("Export to Excel"):
+if st.button("Export to Excel", type='primary'):
     export_to_excel(student)  # This creates and prepares the Excel file
 
     with open("student_evaluations.xlsx", "rb") as file:
@@ -285,5 +285,6 @@ if st.button("Export to Excel"):
             label="Download Excel",
             data=file,
             file_name="student_evaluations.xlsx",
-            mime="application/vnd.ms-excel"
+            mime="application/vnd.ms-excel",
+            type='primary'
         )

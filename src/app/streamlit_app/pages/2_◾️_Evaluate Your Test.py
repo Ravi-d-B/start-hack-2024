@@ -140,7 +140,7 @@ def saveData():
     # modal.close()
 
 
-if(st.button("Save")):
+if(st.button("Save", type='primary')):
     saveData()
 
 def convert_boolean(value):
@@ -219,7 +219,7 @@ def export_to_excel(students, student_marks):
 
 # Assuming 'students' is your list of student objects and 'student_marks' contains the edited DataFrames
 
-if st.button("Export to Excel"):
+if st.button("Export to Excel", type='primary'):
     export_to_excel(students, all_student_results)  # This creates and prepares the Excel file
 
     with open("student_evaluations.xlsx", "rb") as file:
@@ -227,7 +227,8 @@ if st.button("Export to Excel"):
             label="Download Excel",
             data=file,
             file_name="student_evaluations.xlsx",
-            mime="application/vnd.ms-excel"
+            mime="application/vnd.ms-excel",
+            type='primary'
         )
 
 
