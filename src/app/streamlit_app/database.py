@@ -21,9 +21,10 @@ class Test:
 
 
 class CompetencyType:
-    def __init__(self, id, type):
+    def __init__(self, id, type, subject):
         self.id = id
         self.type = type
+        self.subject = subject
 
 
 class TestCompetency:
@@ -131,6 +132,12 @@ def get_competency_type_by_name(name):
     conn.close()
     return competency_type
 
+def get_competency_type_by_subject(subject):
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute(f"SELECT * FROM competency_types WHERE subject = '{subject}'")
+    competency_types = [CompetencyType(*row) for row in cursor.fetchall()]
+    conn.close()
+    return competency_types
 
 def get_competency_types():
     conn = sqlite3.connect('druid.db')
@@ -259,7 +266,8 @@ def setup_database():
     )''')
     conn.execute('''CREATE TABLE IF NOT EXISTS competency_types (
         id INTEGER PRIMARY KEY,
-        type VARCHAR(255) NOT NULL
+        type VARCHAR(255) NOT NULL,
+        subject VARCHAR(255)
     )''')
 
     conn.execute('''CREATE TABLE IF NOT EXISTS test_competencies (
