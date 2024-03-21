@@ -2,15 +2,19 @@ import pandas as pd
 
 CSV_NAME = "src/app/data/lehrplan-21-kanton-st-gallen.csv"
 DF_CSV = pd.read_csv(CSV_NAME, sep=";", encoding="utf-8")
-
+MAPPING = {"MA": "Mathematik", "D": "Deutsch"}
+INV_MAPPING = {v: k for k, v in MAPPING.items()}
 
 def get_all_subjects() -> list:
-    return sorted(list(DF_CSV["code"].dropna().str.split(".").str[0].unique()))[::-1]
+    abbrevs = sorted(list(DF_CSV["code"].dropna().str.split(".").str[0].unique()))[::-1]
+
+    return [MAPPING[abbrev] for abbrev in abbrevs]
 
 
 def get_compentencies_for_subject_code(
     code: str = ""
 ) -> pd.DataFrame:
+    code = INV_MAPPING.get(code, code)
     return DF_CSV.query(f'strukturtyp == "Kompetenz" & code.str.contains("{code}")')
 
 

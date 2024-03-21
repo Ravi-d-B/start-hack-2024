@@ -15,6 +15,10 @@ from app.streamlit_app.database import (
 
 from app.data.competencies import (
     get_all_subjects, get_compentencies_for_subject_code,
+    INV_MAPPING)
+
+from app.data.competencies import (
+    get_all_subjects, get_compentencies_for_subject_code,
     get_full_comp_df
 )
 
@@ -31,7 +35,7 @@ plt.rcParams['font.sans-serif'] = ['Arial']  # Or any font you like
 
 streamlit_theme = toml.load(".streamlit/config.toml")['theme']
 
-st.title('Student Progression')
+st.title('Student Dashboard')
 
 
 def plot_results(df):
@@ -119,7 +123,8 @@ st.session_state.subject = st.selectbox("Select a subject", subjects,
 evals = student.get_student_graph_data()
 
 # Filter on subject
-evals = evals.query('code.str.contains(@st.session_state.subject)')
+real_sub = INV_MAPPING.get(st.session_state.subject, st.session_state.subject)
+evals = evals.query('code.str.contains(@real_sub)')
 # average scores for the same code on the same date
 evals = evals.groupby(['test_date', 'code'])["score"].mean().reset_index()
 
