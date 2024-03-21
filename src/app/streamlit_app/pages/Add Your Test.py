@@ -9,6 +9,8 @@ from app.streamlit_app.database import (
 
 import datetime as dt
 
+COMP_STR_CUTOFF = "Die Schülerinnen und Schüler "
+
 
 def add_row():
     st.session_state.table_data.append({
@@ -38,6 +40,7 @@ def save_test():
     add_to_tests(st.session_state.test_name, st.session_state.test_date)
     test_id = get_test_by_name(st.session_state.test_name).id
     for competency, question_numbers in st.session_state.competencies.items():
+        competency = COMP_STR_CUTOFF + competency
         comp_id = get_competency_type_by_name(competency).id
         add_test_competency_to_test(test_id, comp_id, question_numbers)
 
@@ -79,7 +82,7 @@ if __name__ == "__main__":
                                                )
 
     categories = get_compentencies_for_subject_code(st.session_state.subject)["bezeichnung"]
-    categories_shortened = list(categories.str.replace("Die Schülerinnen und Schüler ", ""))
+    categories_shortened = list(categories.str.replace(COMP_STR_CUTOFF, ""))
 
     st.session_state.num_questions = st.number_input('Number of Questions', min_value=1,
                                                      value=st.session_state.num_questions, step=1)
