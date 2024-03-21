@@ -87,15 +87,3 @@ def create_graph(levels):
     return graph
 
 
-levels =[None] * 7
-graph = create_graph(levels)
-st.graphviz_chart(graph, use_container_width=True)
-
-levels = [4,3,2,1,1,1,None]
-graph1 = create_graph(levels)
-st.graphviz_chart(graph1, use_container_width=True)
-
-
-levels = [4,4,4,4,4,3,3]
-graph2 = create_graph(levels)
-st.graphviz_chart(graph2, use_container_width=True)

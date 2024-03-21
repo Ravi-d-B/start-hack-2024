@@ -10,6 +10,8 @@ from app.streamlit_app.database import (
 
 from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code
 
+from app.streamlit_app.graph import create_graph
+
 st.title('Student Progression')
 
 
@@ -76,6 +78,29 @@ evals["cat2"] = evals["code"].str.split(".").str[2]
 evals["cat3"] = evals["code"].str.split(".").str[3]
 
 plot_results(evals)
+
+level_options = {
+    "Year 1": [1] + [None] * 6,
+    "Year 2": [4, 3, 2, 1, 1, 1, None],
+    "Year 3": [4, 4, 4, 4, 4, 3, 3]
+}
+
+# Add a dropdown menu for selecting the level configuration
+selected_option = st.selectbox(
+    'Select the year for which you want to see the knowledge graph:',
+    options=list(level_options.keys()),
+    index=2
+)
+
+# Get the selected levels configuration
+selected_levels = level_options[selected_option]
+
+# Create the graph based on the selected levels configuration
+graph = create_graph(selected_levels)
+
+# Display the graph
+st.graphviz_chart(graph, use_container_width=True)
+
 
 if st.button("Print Data"):
     data = student.get_student_graph_data()
