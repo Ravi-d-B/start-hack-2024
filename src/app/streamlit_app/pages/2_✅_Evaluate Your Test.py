@@ -85,8 +85,11 @@ data = []
 
 for i, student in enumerate(students):
     data.clear()
-    print(get_student_test_evaluations(student.id, current_test))
+    marks = get_student_test_evaluations(student.id, current_test)
+    for mark in marks:
+        print(mark.score)
     st.subheader(f"{student.name} - {student.id} ")
+
     for (question) in zip(test_evaluations[option]):
         row = {
             "Competencies": question,
@@ -95,6 +98,7 @@ for i, student in enumerate(students):
             "Das kann ich gut": False,
             "Das kann ich sehr gut": False}
         data.append(row)
+
     df = pd.DataFrame(data)
     question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
     all_student_results.append(StudentAnswers(student.id, question_answers))
