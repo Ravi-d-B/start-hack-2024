@@ -92,9 +92,7 @@ if __name__ == "__main__":
                                                )
 
     categories = get_compentencies_for_subject_code(st.session_state.subject)["bezeichnung"]
-    print(categories)
     categories_shortened = list(categories.str.replace(COMP_STR_CUTOFF, ""))
-    print(categories_shortened)
     st.session_state.num_questions = st.number_input('Number of Questions', min_value=1,
                                                      value=st.session_state.num_questions, step=1)
 
@@ -114,7 +112,6 @@ if __name__ == "__main__":
 
         # Column for Competency Selection
         with cols[1]:
-            print(categories_shortened)
             row['competency'] = st.selectbox("Competency", categories_shortened,
                                              index=categories_shortened.index(row['competency']),
                                              key=f'comp_{ind}')
