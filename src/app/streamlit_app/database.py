@@ -227,10 +227,9 @@ def seed_database():
     conn.execute("INSERT INTO tests (test_name) VALUES ('History Test')")
 
 
-    all_competencies = get_compentencies_for_subject_code("")[['bezeichnung', 'code']]
-    for competency, code in all_competencies:
-
-        conn.execute(f"INSERT INTO competency_types (type, code) VALUES ('{competency}', '{code}')")
+    all_competencies = get_compentencies_for_subject_code("")
+    for i, competency in all_competencies.iterrows():
+        conn.execute(f"INSERT INTO competency_types (type, code) VALUES ('{competency['bezeichnung']}', '{competency['code']}')")
 
     # # Insert sample data into the 'competency_types' table
     conn.execute("INSERT INTO competency_types (type, code) VALUES ('Subtraction', '123')")
