@@ -8,9 +8,10 @@ from app.streamlit_app.database import (
     get_student_test_evaluations, get_all_student_test_evaluations
 )
 
-from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code
+from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code, get_full_comp_df
 
 from app.streamlit_app.graph import create_graph
+
 
 st.title('Student Progression')
 
@@ -31,8 +32,14 @@ def plot_results(df):
         # Filter on cat2
         df_cat = df.query('(cat1 + cat2) == @cat_val')
 
+        title_part_1 = df_cat['code'].iloc[0].rsplit('.', 2)[0:2]
+        title_part_2 = df_cat['code'].iloc[0].rsplit('.', 1)[0]
+        title_part_1 = get_full_comp_df().query('code == @title_part_1')['bezeichnung'].iloc[0]
+        title_part_2 = get_full_comp_df().query('code == @title_part_2')['bezeichnung'].iloc[0]
+
+
         # Set title to code but last part dropped
-        ax[i].set_title(df_cat['code'].iloc[0].rsplit('.', 1)[0])
+        ax[i].set_title(f'{title_part_1} - {title_part_2}')
         # Make a line for every cat3
         for cat3 in df_cat['cat3'].unique():
             df_cat3 = df_cat.query('cat3 == @cat3')
