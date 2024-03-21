@@ -4,7 +4,7 @@ class Student:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-
+    
 class StudentTest:
     def __init__(self, id, student_id, test_id):
         self.id = id
@@ -126,6 +126,13 @@ def add_test_evaluation_to_student(student_id, test_evaluation_id, score, commen
     conn.commit()
     conn.close()
 
+def get_test_students(test_id):
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute(f'SELECT st.id, st.student_id, st.test_id FROM student_tests st WHERE st.test_id = {test_id}')
+    test_students = [StudentTest(*row) for row in cursor.fetchall()]
+    conn.close()
+    return test_students
+
 ## Should also include a test id
 def get_student_test_evaluations(student_id, test_id):
     conn = sqlite3.connect('druid.db')
@@ -142,6 +149,42 @@ def get_all_student_test_evaluations():
     conn.close()
     return student_test_evaluations
 
+def seed_database():
+    conn = sqlite3.connect('druid.db')
+     # Insert sample data into the 'students' table
+    conn.execute("INSERT INTO students (name) VALUES ('Alice')")
+    conn.execute("INSERT INTO students (name) VALUES ('Bob')")
+    conn.execute("INSERT INTO students (name) VALUES ('Charlie')")
+
+    # Insert sample data into the 'tests' table
+    conn.execute("INSERT INTO tests (test_name) VALUES ('Math Test')")
+    conn.execute("INSERT INTO tests (test_name) VALUES ('Science Test')")
+    conn.execute("INSERT INTO tests (test_name) VALUES ('History Test')")
+
+    # Insert sample data into the 'evaluation_types' table
+    conn.execute("INSERT INTO evaluation_types (type) VALUES ('Subtraction')")
+    conn.execute("INSERT INTO evaluation_types (type) VALUES ('Addition')")
+    conn.execute("INSERT INTO evaluation_types (type) VALUES ('Multiplication')")
+
+    # Assuming the IDs for 'tests' and 'evaluation_types' start from 1 and increment
+    # Insert sample data into the 'test_evaluations' table
+    conn.execute("INSERT INTO test_evaluations (test_id, evaluation_type_id) VALUES (1, 1)")
+    conn.execute("INSERT INTO test_evaluations (test_id, evaluation_type_id) VALUES (2, 2)")
+    conn.execute("INSERT INTO test_evaluations (test_id, evaluation_type_id) VALUES (3, 3)")
+
+    # Assuming the IDs for students start from 1 and increment
+    # Insert sample data into the 'student_tests' table linking students to tests
+    conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (1, 1)")
+    conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (2, 2)")
+    conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (3, 3)")
+
+    # Assuming the IDs for 'test_evaluations' start from 1 and increment
+    # Insert sample data into the 'student_test_evaluations' table with scores and comments
+    conn.execute("INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (1, 1, 3.5, 'Good job')")
+    conn.execute("INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (2, 2, 4, 'Excellent')")
+    conn.execute("INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (3, 3, 1, 'Needs improvement')")
+
+    conn.commit()
 
 
 def setup_database():

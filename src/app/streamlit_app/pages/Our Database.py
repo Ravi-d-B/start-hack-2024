@@ -1,8 +1,15 @@
 import streamlit as st
-from database import setup_database, get_students, add_to_students, add_to_evaluation_types, get_evaluation_types, add_to_tests, get_tests, add_test_evaluation_to_test, get_test_evaluations, get_all_test_evaluations, add_student_to_tests, add_test_evaluation_to_student, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations
+from database import setup_database, get_students, add_to_students, add_to_evaluation_types, get_evaluation_types, add_to_tests, get_tests, add_test_evaluation_to_test, get_test_evaluations, get_all_test_evaluations, add_student_to_tests, add_test_evaluation_to_student, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations, get_test_students, seed_database
 
 def main():
     setup_database()
+    #Button to seed database
+    if st.button("Seed database"):
+        seed_database()
+        st.success("Database seeded successfully!")
+
+        
+
     st.write("Add student:")
     # Student name input and call to add_to_students after button click
     student_name = st.text_input("Enter student name")
@@ -49,8 +56,15 @@ def main():
         st.write(test.id, test.test_name)
         # Show test evaluations
         test_evaluations = get_test_evaluations(test.id)
+        st.write('Evaluations:')
         for test_evaluation in test_evaluations:
             st.write('Test id:', test_evaluation.test_id, "Evaluation id:", test_evaluation.evaluation_type_id)
+        
+        #also students
+        test_students = get_test_students(test.id)
+        st.write('Students:')
+        for test_student in test_students:
+            st.write('Test student id:', test_student.id, "Student id:", test_student.student_id)
 
     st.write("Add test evaluation to test:")
     test_id = st.text_input("Enter test id")
