@@ -74,6 +74,15 @@ def get_tests():
     return tests
 
 
+def get_test_by_name(test_name):
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute(f"SELECT * FROM tests WHERE test_name = '{test_name}'")
+    tests = [Test(*row) for row in cursor.fetchall()]
+    test = tests[-1] if tests else None
+    conn.close()
+    return test
+
+
 def add_student_to_tests(student_id, test_id):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO student_tests (student_id, test_id) VALUES ({student_id}, {test_id})")

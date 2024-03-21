@@ -1,7 +1,7 @@
 import streamlit as st
 
 from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code
-
+from app.streamlit_app.database import add_to_tests, add_test_competency_to_test, get_test_by_name
 
 def add_row():
     st.session_state.table_data.append({
@@ -12,6 +12,26 @@ def add_row():
 
 def delete_row(index: int):
     st.session_state.table_data.pop(index)
+
+
+def save_test():
+    # Iterate over each row in the table_data
+    for competency in st.session_state.table_data:
+        question_numbers = competency['question_nums']
+        competency = competency['competency']
+
+        # Save each competency with the associated question numbers
+        if competency not in st.session_state.competencies.keys():
+            st.session_state.competencies[competency] = []
+        for num in question_numbers:
+            if num not in st.session_state.competencies[competency]:
+                st.session_state.competencies[competency].append(num)
+
+    # Add test to DB
+    add_to_tests(st.session_state.test_name)
+    test_id = get_test_by_name(st.session_state.test_name).id
+    for competency, question_numbers in st.session_state.competencies.items():
+        add_test_competency_to_test(test_id, competency, question_numbers)
 
 
 def initialize_test_table():
@@ -28,10 +48,10 @@ def initialize_test_table():
         st.session_state.table_data = []
 
     if 'num_questions' not in st.session_state:
-        st.session_state.num_questions = 1
+        st.session_state.num_questions = 10
 
     if 'test_number' not in st.session_state:
-        st.session_state.test_number = 1
+        st.session_state.test_name = 1
 
 
 if __name__ == "__main__":
@@ -39,9 +59,9 @@ if __name__ == "__main__":
     # Initialize or update the competencies in the session state based on selections
     initialize_test_table()
 
-    st.session_state.test_number = st.number_input('Test Number',
-                                                   min_value=1, value=st.session_state.test_number,
-                                                   step=1)
+    st.session_state.test_name = st.text_input('Test Name',
+                                                value=st.session_state.test_name,
+                                                )
 
     categories = get_compentencies_for_subject_code(st.session_state.subject)["bezeichnung"]
     categories_shortened = list(categories.str.replace("Die Schülerinnen und Schüler ", ""))
@@ -77,20 +97,11 @@ if __name__ == "__main__":
     # Buttons to add a new row
     st.button("Add Row", on_click=add_row)
 
-    if st.button('Save Category'):
-
-        # Iterate over each row in the table_data
-        for row in st.session_state.table_data:
-            question_numbers = row['question_nums']  # List of selected question numbers for the row
-            competency = row['competency']  # The selected competency for the row
-
-            # Save each question number with its associated competency
-            for question_number in question_numbers:
-                # Use a tuple of (question_number, competency) as the key
-                st.session_state.competencies[question_number] = competency
+    if st.button('Save Test'):
+        save_test()
 
         st.success(
-            'Competencies for selected questions added.'
+            'Save successful.'
         )
 
     # Optional: Display the current state of question_categories for debugging
