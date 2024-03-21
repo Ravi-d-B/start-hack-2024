@@ -14,6 +14,20 @@ def get_compentencies_for_subject_code(
     return DF_CSV.query(f'strukturtyp == "Kompetenz" & code.str.contains("{code}")')
 
 
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    # Drop columns where code is not MA or D
+    df = df.query('code.str.split(".").str[0] in ["MA", "D"]')
+
+    return df
+
+
+def get_full_comp_df():
+    return DF_CSV
+
+
 if __name__ == "__main__":
     df_subj = get_compentencies_for_subject_code()
     subjects = get_all_subjects()
+    df = clean_data(DF_CSV)
+    df.to_csv("src/app/data/lehrplan-21-kanton-st-gallen.csv", sep=";", encoding="utf-8", index=False)
+

@@ -45,9 +45,10 @@ loaded_tests = get_tests()
 current_test = loaded_tests[0].id
 
 tests_display = []
-test_competencies = {}
+
 
 for test in loaded_tests:
+    test_competencies = {}
     for competency in get_test_competencies(test.id):
         competency_id = competency.id
         competency_type = competency.get_competency_type().type
@@ -75,39 +76,21 @@ all_student_results = []
 
 # Create a list of dictionaries, with each dictionary representing a row
 data = []
-current_test_competencies = get_test_competencies(current_test)
 
-for student in students:
+for i, student in enumerate(students):
     data.clear()
     st.subheader(f"{student.name} - {student.id} ")
-
-    for competency in current_test_competencies:
-        competency_type = competency.get_competency_type().type
-        student_test_evaluation = get_student_test_evaluation_for_competency(student.id, competency.id)
+    for (question) in zip(test_evaluations[option]):
         row = {
-            "Evaluations": competency_type,
-            "Das Klappt noch nicht": student_test_evaluation == 1 if True else False,
-            "Das Gelingt mit teilweise": student_test_evaluation == 2 if True else False,
-            "Das kann ich gut": student_test_evaluation == 3 if True else False,
-            "Das kann ich sehr gut": student_test_evaluation == 4 if True else False}
+            "Evaluations": question,
+            "Das Klappt noch nicht": False,
+            "Das Gelingt mit teilweise": False,
+            "Das kann ich gut": False,
+            "Das kann ich sehr gut": False}
         data.append(row)
     df = pd.DataFrame(data)
-    question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=student.id)
-
-# for i, student in enumerate(students):
-#     data.clear()
-#     st.subheader(f"{student.name} - {student.id} ")
-#     for (question) in zip(test_evaluations[option]):
-#         row = {
-#             "Evaluations": question,
-#             "Das Klappt noch nicht": False,
-#             "Das Gelingt mit teilweise": False,
-#             "Das kann ich gut": False,
-#             "Das kann ich sehr gut": False}
-#         data.append(row)
-#     df = pd.DataFrame(data)
-#     question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
-#     all_student_results.append(StudentAnwsers(student.id, question_answers))
+    question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
+    all_student_results.append(StudentAnwsers(student.id, question_answers))
 
 
 def get_mark(result):
