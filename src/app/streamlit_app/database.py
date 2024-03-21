@@ -1,4 +1,5 @@
 import sqlite3
+import datetime as dt
 from app.data.competencies import get_compentencies_for_subject_code
 
 
@@ -29,9 +30,11 @@ class StudentTest:
         return test
 
 class Test:
-    def __init__(self, id, test_name):
+    def __init__(self, id, test_name, date):
         self.id = id
         self.test_name = test_name
+        # Parse date string to date object
+        self.date = dt.date(date)
 
 
 class CompetencyType:
@@ -81,9 +84,9 @@ def get_students():
     return students
 
 
-def add_to_tests(test_name):
+def add_to_tests(test_name, date):
     conn = sqlite3.connect('druid.db')
-    conn.execute(f"INSERT INTO tests (test_name) VALUES ('{test_name}')")
+    conn.execute(f"INSERT INTO tests (test_name, date) VALUES ('{test_name}', '{date.format('YYYY-MM-DD')}')")
     conn.commit()
     conn.close()
 
@@ -235,9 +238,9 @@ def seed_database():
     conn.execute("INSERT INTO students (name) VALUES ('Charlie')")
 
     # Insert sample data into the 'tests' table
-    conn.execute("INSERT INTO tests (test_name) VALUES ('Math Test')")
-    conn.execute("INSERT INTO tests (test_name) VALUES ('Science Test')")
-    conn.execute("INSERT INTO tests (test_name) VALUES ('History Test')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Math Test', '2021-01-01')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Science Test', '2021-01-02')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('History Test', '2021-01-03')")
 
 
     all_competencies = get_compentencies_for_subject_code("")
@@ -282,7 +285,8 @@ def setup_database():
     )''')
     conn.execute('''CREATE TABLE IF NOT EXISTS tests (
         id INTEGER PRIMARY KEY,
-        test_name VARCHAR(255) NOT NULL
+        test_name VARCHAR(255) NOT NULL,
+        date DATE NOT NULL
     )''')
     conn.execute('''CREATE TABLE IF NOT EXISTS student_tests (
         id INTEGER PRIMARY KEY,
