@@ -58,7 +58,7 @@ def main():
         test_competencies = get_test_competencies(test.id)
         st.write('Competencies:')
         for test_competency in test_competencies:
-            st.write('Test id:', test_competency.test_id, "Competency type id:", test_competency.competency_type_id)
+            st.write('Test id:', test_competency.test_id, "Competency type id:", test_competency.competency_type_id, "Questions:", test_competency.questions)
         
         #also students
         test_students = get_test_students(test.id)
