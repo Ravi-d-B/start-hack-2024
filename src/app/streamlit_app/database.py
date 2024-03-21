@@ -202,10 +202,10 @@ def add_test_evaluation_to_student(student_id, test_competency_id, score, commen
 
 def get_test_students(test_id):
     conn = sqlite3.connect('druid.db')
-    cursor = conn.execute(f'SELECT st.id, st.student_id, st.test_id FROM student_tests st WHERE st.test_id = {test_id}')
-    test_students = [StudentTest(*row) for row in cursor.fetchall()]
+    cursor = conn.execute(f'Select * from students where id in (SELECT student_id FROM student_tests WHERE test_id = {test_id})')
+    students = [Student(*row) for row in cursor.fetchall()]
     conn.close()
-    return test_students
+    return students
 
 
 ## Should also include a test id
