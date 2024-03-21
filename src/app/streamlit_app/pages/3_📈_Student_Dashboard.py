@@ -1,6 +1,7 @@
 # Function to display scores as a line plot
 import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
 from app.streamlit_app.database import get_student_tests
 from app.streamlit_app.utils import get_prompt_template, client
 
@@ -12,7 +13,10 @@ from app.streamlit_app.database import (
 from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code, get_full_comp_df
 
 from app.streamlit_app.graph import create_graph
+plt.rcParams['font.size'] = 20
 
+# set font to Arial
+plt.rcParams['font.sans-serif'] = 'Arial'
 
 # Set the font globally
 plt.rcParams['font.family'] = 'sans-serif'
@@ -26,42 +30,66 @@ def plot_results(df):
     if df.empty:
         st.write("No data to display")
         return
-    # Count number of unique cat 2
+    # Count number of unique concatenated categories
     cats = (df['cat1'] + df['cat2']).unique()
     num_cats = len(cats)
 
-    # make horizontal plots for each cat2
-    fig, ax = plt.subplots(num_cats, 1, figsize=(10, 5 * num_cats),
-                           sharex=True)
+    # Calculate rows for n x 2 layout, rounding up. Ensure at least 1 row.
+    num_rows = max(np.ceil(num_cats / 2).astype(int), 1)
+
+    # Create subplots in a n x 2 layout, adjusting for when num_cats is 1 or 2
+    if num_cats <= 2:
+        fig, axs = plt.subplots(num_rows, num_cats, figsize=(10 * num_cats, 5 * num_rows),
+                                sharex=False, sharey=True)
+        # Ensure axs is 2-dimensional
+        axs = np.atleast_2d(axs)
+    else:
+        fig, axs = plt.subplots(num_rows, 2, figsize=(30, 7 * num_rows), sharex=False,
+                                sharey=True)
+
+    # Flatten the axs array to simplify indexing
+    axs = axs.flatten()
+
 
     for i, cat_val in enumerate(cats):
-        # Filter on cat2
+        # Filter on concatenated categories
         df_cat = df.query('(cat1 + cat2) == @cat_val')
 
         title_part_1 = df_cat['code'].iloc[0].rsplit('.', 2)[0:2]
         title_part_2 = df_cat['code'].iloc[0].rsplit('.', 1)[0]
+        # Assuming get_full_comp_df() function fetches a DataFrame with 'code' and 'bezeichnung' columns
         title_part_1 = get_full_comp_df().query('code == @title_part_1')['bezeichnung'].iloc[0]
         title_part_2 = get_full_comp_df().query('code == @title_part_2')['bezeichnung'].iloc[0]
 
+        # Set title with the parts from the code
+        axs[i].set_title(f'{title_part_1} - {title_part_2}', pad=20)
 
-        # Set title to code but last part dropped
-        ax[i].set_title(f'{title_part_1} - {title_part_2}')
         # Make a line for every cat3
         for cat3 in df_cat['cat3'].unique():
             df_cat3 = df_cat.query('cat3 == @cat3')
-            print(df_cat3)
-            ax[i].plot(df_cat3['test_date'], df_cat3['score'],
-                       marker='o',
-                       label=df_cat3['code'].iloc[0])
-        ax[i].legend()
-        ax[i].set_yticks([0, 1, 2, 3, 4, 5])
-        ax[i].set_yticklabels(['',
-                               'Das Klappt noch nicht',
-                               'Das Gelingt mit teilweise',
-                               'Das kann ich gut',
-                               'Das kann ich sehr gut',
-                               ''])
+            axs[i].plot(df_cat3['test_date'], df_cat3['score'],
+                        marker='o',
+                        label=df_cat3['code'].iloc[0])
+        axs[i].legend()
+        axs[i].set_facecolor('#f0f0f0')
+        for side in ['top', 'bottom', 'left', 'right']:
+            axs[i].spines[side].set(lw=2)
 
+        # make line thicker
+        axs[i].lines[0].set_linewidth(3)
+        axs[i].set_yticks([0, 1, 2, 3, 4, 5])
+        axs[i].set_yticklabels(['',
+                                'Das Klappt noch nicht',
+                                'Das Gelingt mit teilweise',
+                                'Das kann ich gut',
+                                'Das kann ich sehr gut',
+                                ''])
+
+    # If num_cats is odd and greater than 2, hide the last subplot
+    if num_cats % 2 != 0 and num_cats > 2:
+        fig.delaxes(axs[-1])
+
+    plt.tight_layout()
     st.pyplot(fig)
 
 

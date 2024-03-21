@@ -56,6 +56,7 @@ for test in loaded_tests:
 
     tests_display.append(Test(test.id, test.test_name, test_competencies.keys()))
 
+
 test_evaluations = {test.get_name(): test.get_evaluations() for test in tests_display}
 
 
@@ -67,6 +68,12 @@ option = st.selectbox(
 for test in tests_display:
     if test.get_name() == option:
         current_test = test.id
+
+current_competencies = {}
+for competency in get_test_competencies(current_test):
+    competency_id = competency.id
+    competency_type = competency.get_competency_type().type
+    current_competencies[competency_type] = competency_id
 
 
 students = get_test_students(current_test)
@@ -82,7 +89,7 @@ for i, student in enumerate(students):
     st.subheader(f"{student.name} - {student.id} ")
     for (question) in zip(test_evaluations[option]):
         row = {
-            "Evaluations": question,
+            "Competencies": question,
             "Das Klappt noch nicht": False,
             "Das Gelingt mit teilweise": False,
             "Das kann ich gut": False,
@@ -107,7 +114,7 @@ def get_mark(result):
 
 def get_competency_id(result):
     result_type = result.iloc[0][0]
-    return test_competencies[result_type]
+    return current_competencies[result_type]
 
 def saveData():
     for student_temp in all_student_results:
