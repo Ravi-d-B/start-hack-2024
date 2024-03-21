@@ -3,6 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from app.streamlit_app.database import get_student_tests
+from app.streamlit_app.utils import get_prompt_template, client
 
 from app.streamlit_app.database import (
     get_students, get_student_tests,
@@ -16,6 +17,11 @@ plt.rcParams['font.size'] = 20
 
 # set font to Arial
 plt.rcParams['font.sans-serif'] = 'Arial'
+
+# Set the font globally
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = ['Arial']  # Or any font you like
+
 
 st.title('Student Progression')
 
@@ -142,74 +148,33 @@ if selected_option != " ":
 if st.button("Print Data"):
     data = student.get_student_graph_data()
 
-# # Display scores as text
-# st.write(f'Scores for {student.name}:')
-# tests = get_student_tests(student.id)
-#
-# # Dropdown of tests
-# test = st.selectbox('Select a test', tests, format_func=lambda test: test.test_name)
-#
-# test_evaluations = get_student_test_evaluations(student.id, test.id)
-# # Display scores as text
-# st.success(f'Scores for {test.test_name}:')
-# for evaluation in test_evaluations:
-#     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type},
-#     Score: {evaluation.score}, Comments: {evaluation.comments}')
-#
-# # Display evaluations
-# evaluations = student.get_evaluations()
-# st.success('Evaluations:')
-# for evaluation in evaluations:
-#     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type} Comments
-#     {evaluation.comments} Score: {evaluation.score}')
-#
-#
-#
-# if 'grades' in st.session_state and 'question_categories' in st.session_state and
-# st.session_state.grades:
-#     # Convert grades to numeric values
-#     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
-#     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
-#
-# # st.write(list())
-# for item in get_student_tests(1):
-#     print(item.test_name)
 
+information = student.get_student_graph_data()
 
-# if 'grades' in st.session_state and 'question_categories' in st.session_state and
-# st.session_state.grades:
-#     # Convert grades to numeric values
-#     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
-#     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
+if id not in st.session_state or id is not st.session_state.id:
+    st.session_state[id] = get_prompt_template(student.name, information)
+prompt_template = st.session_state[id]
 
-#     # Populate test_categories_scores with grades, organized by category and test number
-#     for (test_number, question_number), grade in st.session_state.grades.items():
-#         category = st.session_state.question_categories.get((test_number, question_number))
-#         if category: # If category exists for this question
-#             key = (category, test_number)
-#             if key not in test_categories_scores:
-#                 test_categories_scores[key] = []
-#             test_categories_scores[key].append(grade_mapping[grade])
+# Display chat messages from history on app rerun
+for message in prompt_template:
+    if message["role"] != 'system':
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-#     # Calculate average score per category per test
-#     category_scores = {} # Format: {'Algebra': {test_number: avg_score, ...}, ...}
-#     for (category, test_number), scores in test_categories_scores.items():
-#         if category not in category_scores:
-#             category_scores[category] = {}
-#         category_scores[category][test_number] = sum(scores) / len(scores)
+client = client()
 
-#     # Plotting
-#     plt.figure(figsize=(10, 6))
-#     for category, scores in category_scores.items():
-#         sorted_tests = sorted(scores.keys())
-#         avg_scores = [scores[test] for test in sorted_tests]
-#         plt.plot(sorted_tests, avg_scores, marker='o', label=category)
+if st.button("Ask AI for a student progress summary"):
 
-#     plt.title('Student Scores Over Tests by Category')
-#     plt.xlabel('Test Number')
-#     plt.ylabel('Average Score')
-#     plt.legend(title='Category')
-#     plt.grid(True)
-#     st.pyplot(plt)
-# else:
-#     st.write('No grades available to display.')
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[
+                {"role": m["role"], "content": m["content"]}
+                for m in prompt_template
+            ],
+            temperature=0.2,
+            stream=True
+        )
+        response = st.write_stream(stream)
+    prompt_template.append({"role": "assistant", "content": response})
