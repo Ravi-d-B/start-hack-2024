@@ -374,6 +374,22 @@ gitdb = ">=4.0.1,<5"
 test = ["black", "coverage[toml]", "ddt (>=1.1.1,!=1.4.3)", "mock", "mypy", "pre-commit", "pytest (>=7.3.1)", "pytest-cov", "pytest-instafail", "pytest-mock", "pytest-sugar"]
 
 [[package]]
+name = "graphviz"
+version = "0.20.3"
+description = "Simple Python interface for Graphviz"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "graphviz-0.20.3-py3-none-any.whl", hash = "sha256:81f848f2904515d8cd359cc611faba817598d2feaac4027b266aa3eda7b3dde5"},
+    {file = "graphviz-0.20.3.zip", hash = "sha256:09d6bc81e6a9fa392e7ba52135a9d49f1ed62526f96499325930e87ca1b5925d"},
+]
+
+[package.extras]
+dev = ["flake8", "pep8-naming", "tox (>=3)", "twine", "wheel"]
+docs = ["sphinx (>=5,<7)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
+test = ["coverage", "pytest (>=7,<8.1)", "pytest-cov", "pytest-mock (>=3)"]
+
+[[package]]
 name = "idna"
 version = "3.6"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -700,6 +716,24 @@ files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
+
+[[package]]
+name = "networkx"
+version = "3.2.1"
+description = "Python package for creating and manipulating graphs and networks"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "networkx-3.2.1-py3-none-any.whl", hash = "sha256:f18c69adc97877c42332c170849c96cefa91881c99a7cb3e95b7c659ebdc1ec2"},
+    {file = "networkx-3.2.1.tar.gz", hash = "sha256:9f1bb5cf3409bf324e0a722c20bdb4c20ee39bf1c30ce8ae499c8502b0b5e0c6"},
+]
+
+[package.extras]
+default = ["matplotlib (>=3.5)", "numpy (>=1.22)", "pandas (>=1.4)", "scipy (>=1.9,!=1.11.0,!=1.11.1)"]
+developer = ["changelist (==0.4)", "mypy (>=1.1)", "pre-commit (>=3.2)", "rtoml"]
+doc = ["nb2plots (>=0.7)", "nbconvert (<7.9)", "numpydoc (>=1.6)", "pillow (>=9.4)", "pydata-sphinx-theme (>=0.14)", "sphinx (>=7)", "sphinx-gallery (>=0.14)", "texext (>=0.6.7)"]
+extra = ["lxml (>=4.6)", "pydot (>=1.4.2)", "pygraphviz (>=1.11)", "sympy (>=1.10)"]
+test = ["pytest (>=7.2)", "pytest-cov (>=4.0)"]
 
 [[package]]
 name = "numpy"
@@ -1413,4 +1447,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e2151bbb4c57dcea824c3bc3793e32b727f29c156951ad30e7737b6f7be1ec6e"
+content-hash = "52364dd261ce8042afa35ef5663e972b96d0a4ca7d951d3e5e834f88918be9bf"
