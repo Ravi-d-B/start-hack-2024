@@ -11,6 +11,8 @@ python = "^3.11"
 pandas = "^2.2.1"
 streamlit = "^1.32.2"
 matplotlib = "^3.8.3"
+graphviz = "^0.20.3"
+networkx = "^3.2.1"
 
 
 [build-system]
