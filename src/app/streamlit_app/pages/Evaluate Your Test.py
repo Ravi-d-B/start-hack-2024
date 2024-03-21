@@ -1,20 +1,14 @@
 import streamlit as st
 import pandas as pd
-from app.streamlit_app.database import setup_database, get_students, add_to_students, add_to_evaluation_types, get_evaluation_types, add_to_tests, get_tests, add_test_evaluation_to_test, get_test_evaluations, get_all_test_evaluations, add_student_to_tests, add_test_evaluation_to_student, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations, get_test_students, seed_database
+from streamlit_modal import Modal
 
-print(get_students())
+from app.streamlit_app.database import setup_database, get_students, add_to_students, add_to_evaluation_types, get_evaluation_types, add_to_tests, get_tests, add_test_evaluation_to_test, get_test_evaluations, get_all_test_evaluations, add_student_to_tests, add_test_evaluation_to_student, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations, get_test_students, seed_database
 
 st.set_page_config(
     layout="wide",
 )
 
 st.title("Test Grading")
-
-
-class Student:
-    def __init__(self, first_name, last_name):
-        self.first_name = first_name
-        self.last_name = last_name
 
 
 class Test:
@@ -29,8 +23,17 @@ class Test:
         return self.evaluations
 
 
-students = [Student("John", "Smith"), Student("Emily", "Johnson"),
-            Student("Michael", "Williams")]
+def find_mark(row):
+    if row[2]:
+        return 1
+    if row[3]:
+        return 2
+    if row[4]:
+        return 3
+    if row[5]:
+        return 4
+
+students = get_students()
 
 Test1 = Test("Test1", ["können Bilder wahrnehmen, beobachten und darüber reflektieren", "können Bilder wahrnehmen, beobachten und darüber reflektieren."])
 Test2 = Test("Test2", ["Why", "Where", "When"])
@@ -51,7 +54,7 @@ student_marks = []
 data = []
 for i, student in enumerate(students):
     data.clear()
-    st.subheader(f"{student.first_name} {student.last_name}")
+    st.subheader(f"{student.name}")
     for (question) in zip(test_evaluations[option]):
         row = {
             "Evaluations": question,
@@ -68,18 +71,28 @@ for i, student in enumerate(students):
 
 for data in student_marks:
     for idx, row in enumerate(data.itertuples(), start=1):
-        st.markdown(f"{row[1][0]}")
-        if(row[2]):
-            st.markdown(row[2])
+        st.markdown(f"{find_mark(row)}")
 
 
-def find_mark(row):
-    if row[2]:
-        return 1
-    if row[3]:
-        return 2
-    if row[4]:
-        return 3
-    if row[5]:
-        return 4
+def saveData():
+    print(students[1].id)
+    modal.close()
 
+
+st.button("Save Changes", on_click=saveData, type="primary")
+
+modal = Modal(
+    "Do you want to confirm changes?",
+    key="confirm modal",
+)
+
+open_modal = st.button("Open", on_click=modal.open)
+
+
+if modal.is_open():
+    with modal.container():
+        col1, col2, col3 = st.columns([6, 1, 1])
+        with col2:
+            st.button('Confirm')
+        with col3:
+            st.button('Cancel', on_click=saveData)
