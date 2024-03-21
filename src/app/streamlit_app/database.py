@@ -27,7 +27,7 @@ class Student:
             c.type as competency_type,
             c.code as code,
             t.test_name as test_name,
-            AVG(st_e.score) as score
+            st_e.score as score
         FROM
             student_test_evaluations st_e
         JOIN
@@ -39,8 +39,6 @@ class Student:
         JOIN
             students st ON st_e.student_id = st.id
         WHERE st.id = ?
-        GROUP BY
-            student_name, test_date, competency_type, code, test_name
         ORDER BY
             st_e.id
         """
