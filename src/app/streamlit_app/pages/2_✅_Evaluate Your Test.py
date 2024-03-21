@@ -89,7 +89,7 @@ for i, student in enumerate(students):
     st.subheader(f"{student.name} - {student.id} ")
     for (question) in zip(test_evaluations[option]):
         row = {
-            "Evaluations": question,
+            "Competencies": question,
             "Das Klappt noch nicht": False,
             "Das Gelingt mit teilweise": False,
             "Das kann ich gut": False,
