@@ -33,6 +33,13 @@ class TestCompetency:
         self.competency_type_id = competency_type_id
         self.questions = questions
 
+    def get_competency_type(self):
+        conn = sqlite3.connect('druid.db')
+        cursor = conn.execute(f'SELECT * FROM competency_types WHERE id = {self.competency_type_id}')
+        competency_type = CompetencyType(*cursor.fetchone())
+        conn.close()
+        return competency_type
+
 
 class StudentTestEvaluation:
     def __init__(self, id, student_id, competency_id, score=None, comments=None):
