@@ -1,4 +1,5 @@
 import sqlite3
+from app.data.competencies import get_compentencies_for_subject_code
 
 
 class Student:
@@ -140,6 +141,14 @@ def get_competency_types():
     return competency_types
 
 
+def get_all_test_competency_types():
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute('SELECT * FROM competency_types')
+    competency_types = [CompetencyType(*row) for row in cursor.fetchall()]
+    conn.close()
+    return competency_types
+
+
 def add_test_competency_to_test(test_id, competency_type_id, questions=None):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES ({test_id}, {competency_type_id}, '{questions}')")
@@ -210,6 +219,11 @@ def seed_database():
     conn.execute("INSERT INTO tests (test_name) VALUES ('Science Test')")
     conn.execute("INSERT INTO tests (test_name) VALUES ('History Test')")
 
+
+    all_competencies = get_compentencies_for_subject_code("")["bezeichnung"]
+    for competency in all_competencies:
+        conn.execute(f"INSERT INTO competency_types (type) VALUES ('{competency}')")
+
     # Insert sample data into the 'competency_types' table
     conn.execute("INSERT INTO competency_types (type) VALUES ('Subtraction')")
     conn.execute("INSERT INTO competency_types (type) VALUES ('Addition')")
@@ -237,7 +251,7 @@ def seed_database():
         "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 3, 1, 'Needs improvement')")
 
     conn.commit()
-
+    conn.close()
 
 def setup_database():
     conn = sqlite3.connect('druid.db')
