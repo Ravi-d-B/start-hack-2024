@@ -17,7 +17,7 @@ def main():
         add_to_students(student_name)
         st.success(f"Student {student_name} added successfully!")
 
-    st.write("Students:")
+    st.success("Students:")
     students = get_students()
     for student in students:
         # Show id and name
@@ -38,7 +38,7 @@ def main():
         add_to_competency_types(competency_type)
         st.success(f"Evaluation type {competency_type} added successfully!")
 
-    st.write("Evaluation types:")
+    st.success("Evaluation types:")
     competency_types = get_competency_types()
     for competency_type in competency_type:
         st.write(competency_type.id, competency_type.type)
@@ -50,7 +50,7 @@ def main():
         add_to_tests(test_name)
         st.success(f"Test {test_name} added successfully!")
 
-    st.write("Tests:")
+    st.success("Tests:")
     tests = get_tests()
     for test in tests:
         st.write(test.id, test.test_name)
