@@ -2,142 +2,100 @@ import streamlit as st
 import graphviz
 import matplotlib.pyplot as plt
 import networkx as nx
+from typing import Optional
+
+SIZE = '40,40'
+
+LEVEL_1_COLOUR = '#f4b484'
+LEVEL_2_COLOUR = '#a8c98c'
+LEVEL_3_COLOUR = '#fa640c'
+LEVEL_4_COLOUR = '#fada63'
+UNTESTED = '#f0f0f0'
+
+LEVEL_1_COLOUR_LIGHT = '#d39e76'
+LEVEL_2_COLOUR_LIGHT = '#92b278'
+LEVEL_3_COLOUR_LIGHT = '#c9520a'
+LEVEL_4_COLOUR_LIGHT = '#c6b853'
+UNTESTED_LIGHT = '#d8d8d8'
 
 
-# Create a graphlib graph object
-graph = graphviz.Digraph()
-graph.attr(size='24,24')
-graph.attr(rankdir='LR')  # Left to Right direction
-
-# Basic Number Concepts
-graph.node('A', 'Read and Write Numbers up to 10', style='filled', fillcolor='white')
-
-# Layer 1 
-graph.node('B', 'Read and Write Numbers 10 to 100', style='filled', fillcolor='white')
-graph.node('C', 'Plus Symbol +', style='filled', fillcolor='white')
-graph.node('D', 'Minus Symbol -', style='filled', fillcolor='white')
-graph.node('E', 'Equal Symbol =', style='filled', fillcolor='white')
-
-# Layer 2
-graph.node('F', 'Even, Odd Numbers', style='filled', fillcolor='white')
-graph.node('G', 'Greater Than, Smaller Than, Symbols <, >', style='filled', fillcolor='white')
-
-# Layer 1
-graph.edges([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E')])
-# Layer 2
-graph.edges([('B', 'F'), ('C', 'G'), ('D', 'G'), ('E', 'G')])
+def add_node_for_level(graph, node_name, node_label, level: Optional[int]):
+    if level == 1:
+        add_node(graph, node_name, node_label, LEVEL_1_COLOUR, LEVEL_1_COLOUR_LIGHT)
+    elif level == 2:
+        add_node(graph, node_name, node_label, LEVEL_2_COLOUR, LEVEL_2_COLOUR_LIGHT)
+    elif level == 3:
+        add_node(graph, node_name, node_label, LEVEL_3_COLOUR, LEVEL_3_COLOUR_LIGHT)
+    elif level == 4:
+        add_node(graph, node_name, node_label, LEVEL_4_COLOUR, LEVEL_4_COLOUR_LIGHT)
+    else:
+        add_node(graph, node_name, node_label, UNTESTED, UNTESTED_LIGHT)
 
 
-st.graphviz_chart(graph, use_container_width=False)
+def add_node(graph, node_name, node_label, node_colour, border_colour):
+    graph.node(node_name,
+               node_label,
+               style='filled',
+               fillcolor=node_colour,
+               color=border_colour,
+               penwidth='2'
+               )
 
 
-# Create a graphlib graph object
-graph1 = graphviz.Digraph()
-graph1.attr(size='24,24')
-graph1.attr(rankdir='LR')  # Left to Right direction
+def add_edge_with_color(graph, from_node, to_node, level: Optional[int]):
+    # Choose edge color based on the level of the destination node
+    if level == 1:
+        edge_color = LEVEL_1_COLOUR_LIGHT
+    elif level == 2:
+        edge_color = LEVEL_2_COLOUR_LIGHT
+    elif level == 3:
+        edge_color = LEVEL_3_COLOUR_LIGHT
+    elif level == 4:
+        edge_color = LEVEL_4_COLOUR_LIGHT
+    else:
+        edge_color = UNTESTED_LIGHT
 
-# Basic Number Concepts
-graph1.node('A', 'Read and Write Numbers up to 10', style='filled', fillcolor='#a3de81')
+    graph.edge(from_node, to_node, color=edge_color, penwidth='1')
 
-# Layer 1 
-graph1.node('B', 'Read and Write Numbers 10 to 100', style='filled', fillcolor='#a3de81')
-graph1.node('C', 'Plus Symbol +', style='filled', fillcolor='#a3de81')
-graph1.node('D', 'Minus Symbol -', style='filled', fillcolor='#a3de81')
-graph1.node('E', 'Equal Symbol =', style='filled', fillcolor='#d6a947')
+def create_graph(levels):
+    # Create a graphlib graph object
+    graph = graphviz.Digraph()
+    graph.attr(size=SIZE)
+    graph.attr(rankdir='TB')  # Left to Right direction
 
-# Layer 2
-graph1.node('F', 'Even, Odd Numbers', style='filled', fillcolor='white')
-graph1.node('G', 'Greater Than, Smaller Than, Symbols <, >', style='filled', fillcolor='#d6a947')
+    # Basic Number Concepts
+    add_node_for_level(graph, 'A', 'Read and Write \n Numbers up to 10', level=levels[0])
+    add_node_for_level(graph, 'B', 'Read and Write \n Numbers 10 to 100', level=levels[1])
+    add_node_for_level(graph, 'C', 'Plus Symbol +', level=levels[2])
+    add_node_for_level(graph, 'D', 'Minus Symbol -', level=levels[3])
+    add_node_for_level(graph, 'E', 'Equal Symbol =', level=levels[4])
 
-# Layer 1
-graph1.edges([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E')])
-# Layer 2
-graph1.edges([('B', 'F'), ('C', 'G'), ('D', 'G'), ('E', 'G')])
+    # Layer 2
+    add_node_for_level(graph, 'F', 'Even, Odd Numbers', level=levels[5])
+    add_node_for_level(graph, 'G', 'Greater Than, Smaller \n Than, Symbols <, >', level=levels[6])
 
+    add_edge_with_color(graph, 'A', 'B', level=levels[1])
+    add_edge_with_color(graph, 'A', 'C', level=levels[2])
+    add_edge_with_color(graph, 'A', 'D', level=levels[3])
+    add_edge_with_color(graph, 'A', 'E', level=levels[4])
 
-st.graphviz_chart(graph1, use_container_width=False)
+    add_edge_with_color(graph, 'B', 'F', level=levels[5])
+    add_edge_with_color(graph, 'C', 'G', level=levels[6])
+    add_edge_with_color(graph, 'D', 'G', level=levels[6])
+    add_edge_with_color(graph, 'E', 'G', level=levels[6])
 
-
-# Function to create the education graph with detailed objectives
-def create_education_graph():
-    # Initialize the graph
-    graph = graphviz.Digraph('G', filename='education_graph.gv')
-    graph.attr(rankdir='LR')  # Left to Right direction
-    
-    # Node for the foundational concept
-    graph.node('1', 'Number and Variable', style='filled', fillcolor='lightblue')
-    
-    # Nodes for main categories
-    graph.node('A', 'A | Operate and Name', style='filled', fillcolor='lightgreen')
-    graph.node('B', 'B | Exploring and Arguing', style='filled', fillcolor='lightyellow')
-    graph.node('C', 'C | Mathematize and Present', style='filled', fillcolor='lightcoral')
-    
-    # Sub-nodes for 'Operate and Name'
-    graph.node('A1', '1. Arithmetic Terms/Symbols, Read/Write Numbers')
-    graph.node('A2', '2. Count Flexibly, Sort Numbers, Overturn Results')
-    graph.node('A3', '3. Add, Subtract, Multiply, Divide, Potentiate')
-    graph.node('A4', '4. Compare/Transform Terms, Solve Equations, Apply Laws/Rules')
-    
-    # Sub-nodes for 'Exploring and Arguing'
-    graph.node('B1', '1. Explore Numerical/Surgical Relationships, Arithmetic Patterns')
-    graph.node('B2', '2. Explain, Check, Justify Statements, Assumptions, Results')
-    graph.node('B3', '3. Use Tools for Researching Arithmetic Patterns')
-    
-    # Sub-nodes for 'Mathematize and Present'
-    graph.node('C1', '1. Present, Describe, Exchange, Understand Calculation Paths')
-    graph.node('C2', '2. Illustrate, Describe, Generalize Numbers, Sequences of Numbers, Terms')
-
-    # Creating edges to denote dependencies and flow
-    graph.edges([('1', 'A'), ('1', 'B'), ('1', 'C')])
-    graph.edges([('A', 'A1'), ('A', 'A2'), ('A', 'A3'), ('A', 'A4')])
-    graph.edges([('B', 'B1'), ('B', 'B2'), ('B', 'B3')])
-    graph.edges([('C', 'C1'), ('C', 'C2')])
-    
     return graph
 
-# Create the graph
-education_graph = create_education_graph()
 
-# Display the graph in Streamlit
+levels =[None] * 7
+graph = create_graph(levels)
+st.graphviz_chart(graph, use_container_width=True)
 
-st.graphviz_chart(education_graph, use_container_width=True)
-
-
-# Create a new directed graph
-G = nx.DiGraph()
-
-# Add nodes
-nodes = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
-G.add_nodes_from(nodes)
-
-# Add edges based on dependencies
-edges = [
-    ('a', 'b'), 
-    ('b', 'c'), 
-    ('b', 'e'), 
-    ('c', 'e'),
-    ('e', 'f'), 
-    ('f', 'g'), 
-    ('g', 'h'), 
-    ('e', 'h'),
-    ('h', 'i'), 
-    ('i', 'j'), 
-    ('j', 'k'), 
-    ('k', 'l'),
-    # Assuming 'd' might be a foundational concept for understanding ratios in later subjects
-    ('d', 'e'), ('d', 'f'), ('d', 'g'), ('d', 'h')
-]
-
-G.add_edges_from(edges)
-
-# Optional: Position nodes using the spring layout
-pos = nx.spring_layout(G)
-
-# Draw the graph
-plt.figure(figsize=(12, 8))
-nx.draw(G, pos, with_labels=True, node_size=2000, node_color='lightblue', font_size=16, arrowstyle='->', arrowsize=20)
-plt.title('Knowledge Graph of Mathematical Concepts', size=20)
+levels = [4,3,2,1,1,1,None]
+graph1 = create_graph(levels)
+st.graphviz_chart(graph1, use_container_width=True)
 
 
-st.pyplot(plt)
-
+levels = [4,4,4,4,4,3,3]
+graph2 = create_graph(levels)
+st.graphviz_chart(graph2, use_container_width=True)
