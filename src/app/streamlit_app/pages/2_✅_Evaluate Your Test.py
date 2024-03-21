@@ -29,7 +29,7 @@ class Test:
         return self.evaluations
 
 
-class StudentAnwsers:
+class StudentAnswers:
     def __init__(self, student_id, anwsers):
         self.student_id = student_id
         self.anwsers = anwsers
@@ -70,6 +70,7 @@ for test in tests_display:
         current_test = test.id
 
 current_competencies = {}
+
 for competency in get_test_competencies(current_test):
     competency_id = competency.id
     competency_type = competency.get_competency_type().type
@@ -86,18 +87,33 @@ data = []
 
 for i, student in enumerate(students):
     data.clear()
+    marks = get_student_test_evaluations(student.id, current_test)
+    scores = []
+    for mark in marks:
+        scores.append(mark.score)
     st.subheader(f"{student.name} - {student.id} ")
-    for (question) in zip(test_evaluations[option]):
-        row = {
-            "Competencies": question,
-            "Das Klappt noch nicht": False,
-            "Das Gelingt mit teilweise": False,
-            "Das kann ich gut": False,
-            "Das kann ich sehr gut": False}
-        data.append(row)
+    if scores:
+        for (question, score) in zip(test_evaluations[option], scores):
+            row = {
+                "Competencies": question,
+                "Das Klappt noch nicht":  True if score == 1 else False,
+                "Das Gelingt mit teilweise": True if score == 2 else False,
+                "Das kann ich gut": True if score == 3 else False,
+                "Das kann ich sehr gut": True if score == 4 else False}
+            data.append(row)
+    else:
+        for (question) in zip(test_evaluations[option]):
+            row = {
+                "Competencies": question,
+                "Das Klappt noch nicht": False,
+                "Das Gelingt mit teilweise": False,
+                "Das kann ich gut": False,
+                "Das kann ich sehr gut": False}
+            data.append(row)
+
     df = pd.DataFrame(data)
     question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
-    all_student_results.append(StudentAnwsers(student.id, question_answers))
+    all_student_results.append(StudentAnswers(student.id, question_answers))
 
 
 def get_mark(result):
