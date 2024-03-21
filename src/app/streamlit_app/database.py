@@ -116,6 +116,15 @@ def add_to_competency_types(type):
     conn.close()
 
 
+def get_competency_type_by_name(name):
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute(f"SELECT * FROM competency_types WHERE type = '{name}'")
+    competency_types = [CompetencyType(*row) for row in cursor.fetchall()]
+    competency_type = competency_types[-1] if competency_types else None
+    conn.close()
+    return competency_type
+
+
 def get_competency_types():
     conn = sqlite3.connect('druid.db')
     cursor = conn.execute('SELECT * FROM competency_types')
