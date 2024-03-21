@@ -2,8 +2,8 @@ import streamlit as st
 
 from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code
 from app.streamlit_app.database import (add_to_tests, add_test_competency_to_test,
-                                        get_test_by_name, add_to_competency_types,
-get_competency_type_by_name)
+                                        get_test_by_name, get_all_test_competency_types,
+                                        get_competency_type_by_name)
 
 def add_row():
     st.session_state.table_data.append({
@@ -33,7 +33,6 @@ def save_test():
     add_to_tests(st.session_state.test_name)
     test_id = get_test_by_name(st.session_state.test_name).id
     for competency, question_numbers in st.session_state.competencies.items():
-        add_to_competency_types(competency) # not needed if seeded
         comp_id = get_competency_type_by_name(competency).id
         add_test_competency_to_test(test_id, comp_id, question_numbers)
 
