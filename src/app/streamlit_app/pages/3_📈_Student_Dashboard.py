@@ -20,7 +20,7 @@ from app.data.competencies import (
 
 from app.streamlit_app.graph import create_graph
 
-plt.rcParams['font.size'] = 20
+plt.rcParams['font.size'] = 24
 
 # set font to Arial
 plt.rcParams['font.sans-serif'] = 'Arial'
@@ -85,7 +85,9 @@ def plot_results(df):
             axs[i].spines[side].set(lw=2)
 
         # make line thicker
-        axs[i].lines[0].set_linewidth(3)
+        for line in axs[i].lines:
+            line.set_linewidth(6)
+            line.set_markersize(13)
         axs[i].set_yticks([0, 1, 2, 3, 4, 5])
         axs[i].set_yticklabels(['',
                                 'Das Klappt noch nicht',
