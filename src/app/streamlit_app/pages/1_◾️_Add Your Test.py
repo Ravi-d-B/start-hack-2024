@@ -120,15 +120,15 @@ if __name__ == "__main__":
     col1, spacer2, col2 = st.columns([2, 5.5, 2])
 
     with col1:
-        st.button("Add New Row", on_click=add_row)
+        st.button("Add New Row", on_click=add_row, type='primary')
 
     with col2:
-        st.button("Delete Last Row", on_click=lambda: delete_row(-1))
+        st.button("Delete Last Row", on_click=lambda: delete_row(-1), type='primary')
 
 
     # add some whitespace
     st.write("")
 
-    if st.button('Save Test'):
+    if st.button('Save Test', type='primary'):
         save_test()
         st.success('Save successful.')
