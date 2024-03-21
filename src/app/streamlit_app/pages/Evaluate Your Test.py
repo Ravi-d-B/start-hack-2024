@@ -5,15 +5,22 @@ st.set_page_config(
     layout="wide",
 )
 
-first_names = ["John", "Emily", "Michael"]
-last_names = ["Smith", "Johnson", "Williams"]
+
+class Student:
+    def __init__(self, first_name, last_name):
+        self.first_name = first_name
+        self.last_name = last_name
+
+
+students = [Student("John", "Smith"), Student("Emily", "Johnson"), Student("Michael", "Williams")]
+
 
 st.title("Test Grading")
 
 # Define your list of options
 options = ['Test 1', 'Test 2']
 
-all_questions = [["Is it okay?", "Is it good?"],["Why", "Where", "When"]]
+all_questions = [["Is it okay?", "Is it good?"], ["Why", "Where", "When"]]
 
 test_questions = {test: questions for test, questions in zip(options, all_questions)}
 
@@ -24,9 +31,9 @@ option = st.selectbox(
 
 # Create a list of dictionaries, with each dictionary representing a row
 data = []
-for i, (first, last) in enumerate(zip(first_names, last_names)):
+for i, student in enumerate(students):
     data.clear()
-    st.subheader(f"{first} {last}")
+    st.subheader(f"{student.first_name} {student.last_name}")
     for (question) in zip(test_questions[option]):
         row = {
             "Question": question,
