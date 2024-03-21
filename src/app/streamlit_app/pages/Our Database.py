@@ -64,7 +64,7 @@ def main():
         test_students = get_test_students(test.id)
         st.write('Students:')
         for test_student in test_students:
-            st.write('Test student id:', test_student.id, "Student id:", test_student.student_id)
+            st.write('Test student id:', test_student.id, "Student name:", test_student.name)
 
     st.write("Add test competency to test:")
     test_id = st.text_input("Enter test id")

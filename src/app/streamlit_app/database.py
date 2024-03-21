@@ -34,7 +34,7 @@ class Test:
         self.id = id
         self.test_name = test_name
         # Parse date string to date object
-        self.date = dt.date(date)
+        self.date = dt.datetime.strptime(date, "%Y-%m-%d").date()
 
 
 class CompetencyType:
@@ -86,7 +86,7 @@ def get_students():
 
 def add_to_tests(test_name, date):
     conn = sqlite3.connect('druid.db')
-    conn.execute(f"INSERT INTO tests (test_name, date) VALUES ('{test_name}', '{date.format('YYYY-MM-DD')}')")
+    conn.execute(f"INSERT INTO tests (test_name, date) VALUES ('{test_name}', '{date.strftime('%Y-%m-%d')}')")
     conn.commit()
     conn.close()
 
