@@ -2,7 +2,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 
-from app.streamlit_app.database import get_students, get_student_tests, get_student_test_evaluations
+from app.streamlit_app.database import get_students, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations
 
 st.title('Student Category Scores Over Tests')
 
@@ -19,9 +19,15 @@ test = st.selectbox('Select a test', tests, format_func=lambda test: test.test_n
 
 test_evaluations = get_student_test_evaluations(student.id, test.id)
 # Display scores as text
-st.write(f'Scores for {test.test_name}:')
+st.success(f'Scores for {test.test_name}:')
 for evaluation in test_evaluations:
-    st.write(f'Category: {evaluation.test_competency_id}, Score: {evaluation.score}, Comments: {evaluation.comments}')
+    st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type}, Score: {evaluation.score}, Comments: {evaluation.comments}')
+
+# Display evaluations
+evaluations = student.get_evaluations()
+st.success('Evaluations:')
+for evaluation in evaluations:
+    st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type} Comments {evaluation.comments} Score: {evaluation.score}')
 
 if 'grades' in st.session_state and 'question_categories' in st.session_state and st.session_state.grades:
     # Convert grades to numeric values

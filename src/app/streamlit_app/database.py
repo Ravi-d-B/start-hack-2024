@@ -8,6 +8,12 @@ class Student:
         self.id = id
         self.name = name
 
+    def get_evaluations(self):
+        conn = sqlite3.connect('druid.db')
+        cursor = conn.execute(f'SELECT * FROM student_test_evaluations WHERE student_id = {self.id}')
+        student_test_evaluations = [StudentTestEvaluation(*row) for row in cursor.fetchall()]
+        conn.close()
+        return student_test_evaluations
 
 class StudentTest:
     def __init__(self, id, student_id, test_id):
@@ -66,6 +72,20 @@ class StudentTestEvaluation:
         self.test_competency_id = competency_id
         self.score = score  # 1, 1.5, 2, 2.5, 3, 3.5, 4
         self.comments = comments
+
+    def get_student(self):
+        conn = sqlite3.connect('druid.db')
+        cursor = conn.execute(f'SELECT * FROM students WHERE id = {self.student_id}')
+        student = Student(*cursor.fetchone())
+        conn.close()
+        return student
+    
+    def get_test_competency(self):
+        conn = sqlite3.connect('druid.db')
+        cursor = conn.execute(f'SELECT * FROM test_competencies WHERE id = {self.test_competency_id}')
+        test_competency = TestCompetency(*cursor.fetchone())
+        conn.close()
+        return test_competency
 
 
 def add_to_students(name):
@@ -228,7 +248,6 @@ def get_all_student_test_evaluations():
     student_test_evaluations = [StudentTestEvaluation(*row) for row in cursor.fetchall()]
     conn.close()
     return student_test_evaluations
-
 
 def seed_database():
     conn = sqlite3.connect('druid.db')
