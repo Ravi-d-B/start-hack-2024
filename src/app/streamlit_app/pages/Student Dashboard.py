@@ -10,6 +10,9 @@ students = get_students()
 # Dropdown of students
 student = st.selectbox('Select a student', students, format_func=lambda student: student.name)
 
+if st.button("Print Data"):
+    data = student.get_student_graph_data()
+
 # Display scores as text
 st.write(f'Scores for {student.name}:')
 tests = get_student_tests(student.id)
@@ -28,6 +31,8 @@ evaluations = student.get_evaluations()
 st.success('Evaluations:')
 for evaluation in evaluations:
     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type} Comments {evaluation.comments} Score: {evaluation.score}')
+
+
 
 if 'grades' in st.session_state and 'question_categories' in st.session_state and st.session_state.grades:
     # Convert grades to numeric values

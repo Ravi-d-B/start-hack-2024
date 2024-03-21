@@ -1,5 +1,7 @@
 import sqlite3
 import datetime as dt
+import pandas as pd
+
 from app.data.competencies import get_compentencies_for_subject_code
 
 
@@ -14,6 +16,42 @@ class Student:
         student_test_evaluations = [StudentTestEvaluation(*row) for row in cursor.fetchall()]
         conn.close()
         return student_test_evaluations
+
+    #
+    def get_student_graph_data(self):
+        conn = sqlite3.connect('druid.db')
+        sql_query = """
+        SELECT
+            st.name as student_name,
+            t.date as test_date,
+            c.type as competency_type,
+            c.code as code,
+            t.test_name as test_name,
+            AVG(st_e.score) as score
+        FROM
+            student_test_evaluations st_e
+        JOIN
+            test_competencies tc ON st_e.test_competency_id = tc.id
+        JOIN
+            competency_types c ON tc.competency_type_id = c.id
+        JOIN
+            tests t ON tc.test_id = t.id
+        JOIN
+            students st ON st_e.student_id = st.id
+        WHERE st.id = ?
+        GROUP BY
+            student_name, test_date, competency_type, code, test_name
+        ORDER BY
+            st_e.id
+        """
+
+        # Execute the query and load the result set into a pandas DataFrame
+        df = pd.read_sql_query(sql_query, conn, params=(self.id,))
+
+        # Display the DataFrame to verify its structure
+        print(df.head())
+        conn.close()
+        return df
 
 class StudentTest:
     def __init__(self, id, student_id, test_id):
@@ -257,40 +295,68 @@ def seed_database():
     conn.execute("INSERT INTO students (name) VALUES ('Charlie')")
 
     # Insert sample data into the 'tests' table
-    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Math Test', '2021-01-01')")
-    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Science Test', '2021-01-02')")
-    conn.execute("INSERT INTO tests (test_name, date) VALUES ('History Test', '2021-01-03')")
+    # conn.execute("INSERT INTO tests (test_name, date) VALUES ('Math Test', '2021-01-01')")
+    # conn.execute("INSERT INTO tests (test_name, date) VALUES ('Science Test', '2021-01-02')")
+    # conn.execute("INSERT INTO tests (test_name, date) VALUES ('History Test', '2021-01-03')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Math Test 1', '2021-01-01')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Science Test 1', '2021-01-02')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('History Test 1', '2021-01-03')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Math Test 2', '2021-01-01')")
+    conn.execute("INSERT INTO tests (test_name, date) VALUES ('Science Test 2', '2021-01-02')")
+
 
 
     all_competencies = get_compentencies_for_subject_code("")
     for i, competency in all_competencies.iterrows():
         conn.execute(f"INSERT INTO competency_types (type, code) VALUES ('{competency['bezeichnung']}', '{competency['code']}')")
 
-    # # Insert sample data into the 'competency_types' table
-    conn.execute("INSERT INTO competency_types (type, code) VALUES ('Subtraction', '123')")
-    conn.execute("INSERT INTO competency_types (type, code) VALUES ('Addition', '222')")
-    conn.execute("INSERT INTO competency_types (type, code) VALUES ('Multiplication', '333')")
-
     # Assuming the IDs for 'tests' and 'test_competencies' start from 1 and increment
     # Insert sample data into the 'test_competencies' table
-    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (1, 1, 'jaahuu')")
-    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (2, 2)")
-    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (3, 3)")
+    # conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (1, 1, 'jaahuu')")
+    # conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (2, 2)")
+    # conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (3, 3)")
+    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (1, 1, 'Q1,Q2,Q3')")
+    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (2, 2, 'Q1,Q2')")
+    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (3, 3, NULL)")
+    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (4, 1, 'Q4,Q5')")
+    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (5, 2, 'Q3,Q4')")
+
 
     # Assuming the IDs for students start from 1 and increment
     # Insert sample data into the 'student_tests' table linking students to tests
+    # conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (1, 1)")
+    # conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (2, 2)")
+    # conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (3, 3)")
+
     conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (1, 1)")
     conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (2, 2)")
     conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (3, 3)")
+    conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (1, 4)")
+    conn.execute("INSERT INTO student_tests (student_id, test_id) VALUES (2, 5)")
+
+    
 
     # Assuming the IDs for 'test_competencies' start from 1 and increment
     # Insert sample data into the 'student_test_evaluations' table with scores and comments
-    conn.execute(
-        "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (1, 1, 3.5, 'Good job')")
-    conn.execute(
-        "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (2, 2, 4, 'Excellent')")
-    conn.execute(
-        "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 3, 1, 'Needs improvement')")
+    # conn.execute(
+    #     "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (1, 1, 3.5, 'Good job')")
+    # conn.execute(
+    #     "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (2, 2, 4, 'Excellent')")
+    # conn.execute(
+    #     "INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 3, 1, 'Needs improvement')")
+
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (1, 1, 3.5, "Good job on Math Test 1")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (2, 2, 4.0, "Excellent work on Science Test 1")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 3, 1.0, "Needs improvement in History")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (1, 4, 4.5, "Outstanding performance on Math Test 2")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (2, 5, 2.5, "Average understanding in Science Test 2")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 1, 2.0, "Satisfactory but could improve")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (1, 2, 3.0, "Decent effort, but needs more practice")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (2, 3, 4.5, "Great understanding of the concepts")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 4, 1.5, "Struggled with advanced topics in Math")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (1, 5, 3.8, "Good, but watch out for tricky questions")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (2, 1, 4.2, "Very good performance overall")')
+    conn.execute('INSERT INTO student_test_evaluations (student_id, test_competency_id, score, comments) VALUES (3, 2, 2.3, "Needs to focus more on the basics")')
 
     conn.commit()
     conn.close()
