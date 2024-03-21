@@ -2,8 +2,10 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from app.streamlit_app.database import get_student_tests
 from app.streamlit_app.utils import get_prompt_template, client
+from openpyxl.styles import Alignment, Font, PatternFill
 
 from app.streamlit_app.database import (
     get_students, get_student_tests,
@@ -177,5 +179,105 @@ if st.button("Ask AI for a student progress summary"):
         response = st.write_stream(stream)
     prompt_template.append({"role": "assistant", "content": response})
 
-if st.button("Print Data"):
-    data = student.get_student_graph_data()
+def convert_boolean(value):
+    return "X" if value else ""
+
+def prepare_dataframe(df):
+     # Adjust 'Evaluations' to take the first element of the tuple
+    df['Evaluations'] = df['Evaluations'].apply(lambda x: x[0])
+    # Select columns to convert, assuming the first column 'Evaluations' should not be converted
+    columns_to_convert = df.columns[1:]
+    df[columns_to_convert] = df[columns_to_convert].applymap(convert_boolean)
+    return df
+
+def export_to_excel(student):
+    excel_file_path = "student_evaluations.xlsx"
+    with pd.ExcelWriter(excel_file_path, engine='openpyxl') as writer:
+        tests = get_student_tests(student.id)
+        for test in tests:
+            # Retrieve evaluations for this test
+            evaluations = get_student_test_evaluations(student.id, test.id)
+            if(len(evaluations) == 0):
+                pass
+
+                        # Initialize a list to hold processed evaluation data
+            processed_evaluations = []
+            
+            for eval in evaluations:
+                # Assuming eval['score'] exists and is an integer 1-4
+                score = eval.score
+                competency = eval.get_test_competency()
+                
+                # Map score 1-4 to columns B-E with "X"
+                # Create a row with 'None' for columns B-E and then replace the correct column with "X"
+                row = [competency.get_competency_type().type] + [None, None, None, None]
+                row[score] = "X"  # Place "X" in the column corresponding to the score
+                
+                processed_evaluations.append(row)
+            
+            # Convert the processed data into a DataFrame
+            columns = ['Evaluation', 'Das Klappt noch nicht', 'Das Gelingt mit teilweise', 'Das kann ich gut', 'Das kann ich sehr gut']
+            df = pd.DataFrame(processed_evaluations, columns=columns)
+            # Generate a unique sheet name for this test, considering Excel's 31-character limit
+            sheet_name = f"Test_{test.test_name}"[:31]
+            # Write the DataFrame to a sheet in the Excel file
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+            worksheet = writer.sheets[sheet_name]
+            bold_font = Font(bold=True)
+            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+            index = 0
+            for col in worksheet.columns:
+                if index == 0:
+                    index = index + 1
+                    pass
+                max_length = 0
+                column = col[0].column_letter  # Get the column name
+                for cell in col:
+                    # Set center alignment for all cells
+                    cell.alignment = center_alignment
+                    
+                    # Apply bold font only to cells with 'X'
+                    if cell.value == "X":
+                        cell.font = bold_font
+
+                    # Calculate max length for auto-adjustment
+                    try:  # Necessary to avoid error on empty cells
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+
+                adjusted_width = (max_length + 2) * 1.2
+                worksheet.column_dimensions[column].width = adjusted_width
+
+            LEVEL_1_COLOUR = 'FFF4B484'
+            LEVEL_2_COLOUR = 'FFA8C98C'
+            LEVEL_3_COLOUR = 'FFFA640C'
+            LEVEL_4_COLOUR = 'FFFADA63'
+
+            # Create fill objects for each level
+            level_1_fill = PatternFill(start_color=LEVEL_1_COLOUR, end_color=LEVEL_1_COLOUR, fill_type="solid")
+            level_2_fill = PatternFill(start_color=LEVEL_2_COLOUR, end_color=LEVEL_2_COLOUR, fill_type="solid")
+            level_3_fill = PatternFill(start_color=LEVEL_3_COLOUR, end_color=LEVEL_3_COLOUR, fill_type="solid")
+            level_4_fill = PatternFill(start_color=LEVEL_4_COLOUR, end_color=LEVEL_4_COLOUR, fill_type="solid")
+
+            # Apply the fills to the first cell in columns B through E
+            worksheet['B1'].fill = level_1_fill
+            worksheet['C1'].fill = level_2_fill
+            worksheet['D1'].fill = level_3_fill
+            worksheet['E1'].fill = level_4_fill
+            worksheet.column_dimensions['A'].width = 40
+
+
+if st.button("Export to Excel"):
+    export_to_excel(student)  # This creates and prepares the Excel file
+
+    with open("student_evaluations.xlsx", "rb") as file:
+        st.download_button(
+            label="Download Excel",
+            data=file,
+            file_name="student_evaluations.xlsx",
+            mime="application/vnd.ms-excel"
+        )

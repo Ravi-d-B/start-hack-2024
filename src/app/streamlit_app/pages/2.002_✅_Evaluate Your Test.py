@@ -135,9 +135,9 @@ def export_to_excel(students, student_marks):
    excel_file_path = "student_evaluations.xlsx"
    with pd.ExcelWriter(excel_file_path, engine='openpyxl') as writer:
     for student, df in zip(students, student_marks):
-        print('df_answers', df.get_anwsers())
+        # print('df_answers', df.get_anwsers())
         prepared_df = prepare_dataframe(df.get_anwsers().copy())
-        print(prepared_df)
+        # print(prepared_df)
         sheet_name = student.name[:31]
 
         # Write DataFrame to an Excel sheet
@@ -154,6 +154,7 @@ def export_to_excel(students, student_marks):
         index = 0
         for col in worksheet.columns:
             if index == 0:
+                index += 1
                 pass
             max_length = 0
             column = col[0].column_letter  # Get the column name

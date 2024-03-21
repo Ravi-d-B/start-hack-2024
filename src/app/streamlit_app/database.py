@@ -47,7 +47,7 @@ class Student:
         df = pd.read_sql_query(sql_query, conn, params=(self.id,))
 
         # Display the DataFrame to verify its structure
-        print(df.head())
+        # print(df.head())
         conn.close()
         return df
 
@@ -135,7 +135,7 @@ def get_students():
     conn = sqlite3.connect('druid.db')
     cursor = conn.execute('SELECT * FROM students')
     students = [Student(*row) for row in cursor.fetchall()]
-    print(students)
+    # print(students)
     conn.close()
     return students
 
@@ -273,7 +273,7 @@ def get_student_test_evaluations(student_id, test_id):
     cursor = conn.execute(
         f'SELECT ste.id, ste.student_id, ste.test_competency_id, ste.score, ste.comments FROM student_test_evaluations ste WHERE ste.student_id = {student_id} AND ste.test_competency_id IN (SELECT te.id FROM test_competencies te WHERE te.test_id = {test_id})')
     student_test_evaluations = [StudentTestEvaluation(*row) for row in cursor.fetchall()]
-    print(student_test_evaluations)
+    # print(student_test_evaluations)
     conn.close()
     return student_test_evaluations
 
