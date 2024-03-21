@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.image('logos/logo_trans.png')
+st.image('src/app/streamlit_app/logos/logo_trans.png')
 
 st.write(''' \n\n\n\n\n
             
