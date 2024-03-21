@@ -15,6 +15,7 @@ graphviz = "^0.20.3"
 networkx = "^3.2.1"
 streamlit-modal = "^0.1.2"
 openpyxl = "^3.1.2"
+openai = "^1.14.2"
 
 
 [build-system]
