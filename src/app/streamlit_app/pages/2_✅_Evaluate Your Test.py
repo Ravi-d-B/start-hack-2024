@@ -140,30 +140,30 @@ def saveData():
     # modal.close()
 
 
-if(st.button("Save")):
-    saveData()
-
+# if(st.button("Save")):
+#     saveData()
+#
 # if st.button('Confirm'):
 #     saveData()
 
-# modal = Modal(
-#     "Do you want to confirm changes?",
-#     key="confirm modal",
-# )
-#
-# open_modal = st.button("Save")
-# if open_modal:
-#     modal.open()
-#
-#
-# if modal.is_open():
-#     with modal.container():
-#         col1, col2, col3 = st.columns([6, 1, 1])
-#         with col2:
-#             if st.button('Confirm'):
-#                 saveData()
-#         with col3:
-#             if st.button('Cancel'):
-#                 modal.close()
+modal = Modal(
+    "Do you want to confirm changes?",
+    key="confirm modal",
+)
+
+open_modal = st.button("Save")
+if open_modal:
+    modal.open()
+
+
+if modal.is_open():
+    with modal.container():
+        col1, col2, col3 = st.columns([6, 1, 1])
+        with col2:
+            if st.button('Confirm'):
+                saveData()
+        with col3:
+            if st.button('Cancel'):
+                modal.close()
 
 
