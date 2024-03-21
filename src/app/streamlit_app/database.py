@@ -29,9 +29,9 @@ class CompetencyType:
 class TestCompetency:
     def __init__(self, id, test_id, competency_type_id, questions=None):
         self.id = id
-        self.questions = questions
         self.test_id = test_id
         self.competency_type_id = competency_type_id
+        self.questions = questions
 
 
 class StudentTestEvaluation:
@@ -117,7 +117,7 @@ def get_competency_types():
 
 def add_test_competency_to_test(test_id, competency_type_id, questions=None):
     conn = sqlite3.connect('druid.db')
-    conn.execute(f"INSERT INTO test_competencies (test_id, competency_type_id) VALUES ({test_id}, {competency_type_id})")
+    conn.execute(f"INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES ({test_id}, {competency_type_id}, '{questions}')")
     conn.commit()
     conn.close()
 
@@ -192,7 +192,7 @@ def seed_database():
 
     # Assuming the IDs for 'tests' and 'test_competencies' start from 1 and increment
     # Insert sample data into the 'test_competencies' table
-    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (1, 1)")
+    conn.execute("INSERT INTO test_competencies (test_id, competency_type_id, questions) VALUES (1, 1, 'jaahuu')")
     conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (2, 2)")
     conn.execute("INSERT INTO test_competencies (test_id, competency_type_id) VALUES (3, 3)")
 
@@ -239,9 +239,9 @@ def setup_database():
 
     conn.execute('''CREATE TABLE IF NOT EXISTS test_competencies (
         id INTEGER PRIMARY KEY,
-        questions VARCHAR(255),
         test_id INT,
         competency_type_id INT,
+        questions VARCHAR(255),
         FOREIGN KEY (test_id) REFERENCES tests(id),
         FOREIGN KEY (competency_type_id) REFERENCES competency_types(id)
     )''')
