@@ -27,7 +27,7 @@ class Test:
         return self.evaluations
 
 
-class StudentAnwsers:
+class StudentAnswers:
     def __init__(self, student_id, anwsers):
         self.student_id = student_id
         self.anwsers = anwsers
@@ -68,6 +68,7 @@ for test in tests_display:
         current_test = test.id
 
 current_competencies = {}
+
 for competency in get_test_competencies(current_test):
     competency_id = competency.id
     competency_type = competency.get_competency_type().type
@@ -84,6 +85,7 @@ data = []
 
 for i, student in enumerate(students):
     data.clear()
+    print(get_student_test_evaluations(student.id, current_test))
     st.subheader(f"{student.name} - {student.id} ")
     for (question) in zip(test_evaluations[option]):
         row = {
@@ -95,7 +97,7 @@ for i, student in enumerate(students):
         data.append(row)
     df = pd.DataFrame(data)
     question_answers = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
-    all_student_results.append(StudentAnwsers(student.id, question_answers))
+    all_student_results.append(StudentAnswers(student.id, question_answers))
 
 
 def get_mark(result):
