@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from streamlit_modal import Modal
 
+from openpyxl.styles import Alignment, Font
+
 from app.streamlit_app.database import *
 
 st.set_page_config(
@@ -74,9 +76,58 @@ for i, student in enumerate(students):
     edited_df = st.data_editor(df, use_container_width=True, disabled="col1", hide_index="true", height=None, key=i)
     student_marks.append(edited_df)
 
+def convert_boolean(value):
+    return "X" if value else ""
+
+def prepare_dataframe(df):
+    # Select columns to convert, assuming the first column 'Evaluations' should not be converted
+    columns_to_convert = df.columns[1:]
+    df[columns_to_convert] = df[columns_to_convert].applymap(convert_boolean)
+    return df
+
+def export_to_excel(students, student_marks):
+   excel_file_path = "student_evaluations.xlsx"
+   with pd.ExcelWriter(excel_file_path, engine='openpyxl') as writer:
+    for student, df in zip(students, student_marks):
+        prepared_df = prepare_dataframe(df.copy())
+        sheet_name = student.name[:31]
+        
+        # Write DataFrame to an Excel sheet
+        prepared_df.to_excel(writer, sheet_name=sheet_name, index=False)
+        
+        # Get the workbook and the worksheet objects
+        workbook = writer.book
+        worksheet = writer.sheets[sheet_name]
+        
+
+        # Define styles
+        bold_font = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            
+
+        # Apply column width and alignment + font to all cells
+        worksheet.column_dimensions['A'].width = 30
+        for row in worksheet.iter_rows(min_row=1, max_col=len(prepared_df.columns), max_row=len(prepared_df)+1):
+            for cell in row:
+                cell.alignment = center_alignment
+                # Apply bold font only to cells with 'X'
+                if cell.value == "X":
+                    cell.font = bold_font
 
 
 
+# Assuming 'students' is your list of student objects and 'student_marks' contains the edited DataFrames
+
+if st.button("Export to Excel"):
+    export_to_excel(students, student_marks)  # This creates and prepares the Excel file
+    
+    with open("student_evaluations.xlsx", "rb") as file:
+        st.download_button(
+            label="Download Excel",
+            data=file,
+            file_name="student_evaluations.xlsx",
+            mime="application/vnd.ms-excel"
+        )
 
 def find_mark(row):
     if row[2]:
