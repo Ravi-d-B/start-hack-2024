@@ -1,8 +1,9 @@
 import streamlit as st
 
-st.sidebar.image('src/app/streamlit_app/logos/logo_trans.png')
+st.image('src/app/streamlit_app/logos/logo2.png', width=(400))
 
-st.markdown("<h1 style='text-align: center; font-family: Alexandria; font-size: 100px ;color: #27b1b1;'>DRUID</h1>", unsafe_allow_html=True)
+
+
 
 st.write('''DRUID is a revolutionary Primary School Teacher platform \n\nNow. Every student's progress can be monitored to help them fulfil their potential. \n\n With in-depth knowledge of the curriculum and student data, DRUID can make personalised teaching recommendations.''')
 
