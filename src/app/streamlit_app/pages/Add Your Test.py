@@ -54,7 +54,7 @@ def initialize_test_table():
     if 'num_questions' not in st.session_state:
         st.session_state.num_questions = 10
 
-    if 'test_number' not in st.session_state:
+    if 'test_name' not in st.session_state:
         st.session_state.test_name = 1
 
 
