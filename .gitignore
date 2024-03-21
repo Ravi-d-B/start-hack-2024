@@ -3,3 +3,4 @@
 *.db-journal
 *student_evaluations.pdf
 *student_evaluations.xlsx
+*.env

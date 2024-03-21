@@ -3,6 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from app.streamlit_app.database import get_student_tests
+from app.streamlit_app.utils import get_prompt_template, client
 
 from app.streamlit_app.database import (
     get_students, get_student_tests,
@@ -16,6 +17,11 @@ plt.rcParams['font.size'] = 20
 
 # set font to Arial
 plt.rcParams['font.sans-serif'] = 'Arial'
+
+# Set the font globally
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = ['Arial']  # Or any font you like
+
 
 st.title('Student Progression')
 
@@ -34,12 +40,12 @@ def plot_results(df):
     # Create subplots in a n x 2 layout, adjusting for when num_cats is 1 or 2
     if num_cats <= 2:
         fig, axs = plt.subplots(num_rows, num_cats, figsize=(10 * num_cats, 5 * num_rows),
-                                sharex=False, sharey=True)
+                                sharex=False, sharey=True, dpi=600)
         # Ensure axs is 2-dimensional
         axs = np.atleast_2d(axs)
     else:
         fig, axs = plt.subplots(num_rows, 2, figsize=(30, 7 * num_rows), sharex=False,
-                                sharey=True)
+                                sharey=True, dpi=600)
 
     # Flatten the axs array to simplify indexing
     axs = axs.flatten()
@@ -115,99 +121,61 @@ evals["cat3"] = evals["code"].str.split(".").str[3]
 plot_results(evals)
 
 level_options = {
-    "Year 1": [1] + [None] * 6,
-    "Year 2": [4, 3, 2, 1, 1, 1, None],
-    "Year 3": [4, 4, 4, 4, 4, 3, 3]
+    " ": None,
+    "Year 1": [2] + [None] * 6,
+    "Year 2": [4, 4, 4, 1, 4, None, None],
+    "Year 3": [4, 4, 4, 1, 4, 4, 3]
 }
 
 # Add a dropdown menu for selecting the level configuration
 selected_option = st.selectbox(
     'Select the year for which you want to see the knowledge graph:',
     options=list(level_options.keys()),
-    index=2
+    index=0
 )
 
-# Get the selected levels configuration
-selected_levels = level_options[selected_option]
+if selected_option != " ":
+    # Get the selected levels configuration
+    selected_levels = level_options[selected_option]
 
-# Create the graph based on the selected levels configuration
-graph = create_graph(selected_levels)
+    # Create the graph based on the selected levels configuration
+    graph = create_graph(selected_levels)
 
-# Display the graph
-st.graphviz_chart(graph, use_container_width=True)
+    # Display the graph
+    st.graphviz_chart(graph, use_container_width=True)
 
+
+
+
+information = student.get_student_graph_data()
+
+if id not in st.session_state or id is not st.session_state.id:
+    st.session_state[id] = get_prompt_template(student.name, information)
+prompt_template = st.session_state[id]
+
+# Display chat messages from history on app rerun
+for message in prompt_template:
+    if message["role"] != 'system':
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+client = client()
+
+if st.button("Ask AI for a student progress summary"):
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[
+                {"role": m["role"], "content": m["content"]}
+                for m in prompt_template
+            ],
+            temperature=0.2,
+            stream=True
+        )
+        response = st.write_stream(stream)
+    prompt_template.append({"role": "assistant", "content": response})
 
 if st.button("Print Data"):
     data = student.get_student_graph_data()
-
-# # Display scores as text
-# st.write(f'Scores for {student.name}:')
-# tests = get_student_tests(student.id)
-#
-# # Dropdown of tests
-# test = st.selectbox('Select a test', tests, format_func=lambda test: test.test_name)
-#
-# test_evaluations = get_student_test_evaluations(student.id, test.id)
-# # Display scores as text
-# st.success(f'Scores for {test.test_name}:')
-# for evaluation in test_evaluations:
-#     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type},
-#     Score: {evaluation.score}, Comments: {evaluation.comments}')
-#
-# # Display evaluations
-# evaluations = student.get_evaluations()
-# st.success('Evaluations:')
-# for evaluation in evaluations:
-#     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type} Comments
-#     {evaluation.comments} Score: {evaluation.score}')
-#
-#
-#
-# if 'grades' in st.session_state and 'question_categories' in st.session_state and
-# st.session_state.grades:
-#     # Convert grades to numeric values
-#     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
-#     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
-#
-# # st.write(list())
-# for item in get_student_tests(1):
-#     print(item.test_name)
-
-
-# if 'grades' in st.session_state and 'question_categories' in st.session_state and
-# st.session_state.grades:
-#     # Convert grades to numeric values
-#     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
-#     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
-
-#     # Populate test_categories_scores with grades, organized by category and test number
-#     for (test_number, question_number), grade in st.session_state.grades.items():
-#         category = st.session_state.question_categories.get((test_number, question_number))
-#         if category: # If category exists for this question
-#             key = (category, test_number)
-#             if key not in test_categories_scores:
-#                 test_categories_scores[key] = []
-#             test_categories_scores[key].append(grade_mapping[grade])
-
-#     # Calculate average score per category per test
-#     category_scores = {} # Format: {'Algebra': {test_number: avg_score, ...}, ...}
-#     for (category, test_number), scores in test_categories_scores.items():
-#         if category not in category_scores:
-#             category_scores[category] = {}
-#         category_scores[category][test_number] = sum(scores) / len(scores)
-
-#     # Plotting
-#     plt.figure(figsize=(10, 6))
-#     for category, scores in category_scores.items():
-#         sorted_tests = sorted(scores.keys())
-#         avg_scores = [scores[test] for test in sorted_tests]
-#         plt.plot(sorted_tests, avg_scores, marker='o', label=category)
-
-#     plt.title('Student Scores Over Tests by Category')
-#     plt.xlabel('Test Number')
-#     plt.ylabel('Average Score')
-#     plt.legend(title='Category')
-#     plt.grid(True)
-#     st.pyplot(plt)
-# else:
-#     st.write('No grades available to display.')
