@@ -80,6 +80,8 @@ def initialize_test_table():
 
 if __name__ == "__main__":
 
+    st.title("Add a New Test")
+
     # Initialize or update the competencies in the session state based on selections
     initialize_test_table()
 
@@ -101,7 +103,7 @@ if __name__ == "__main__":
 
     # Display the table with input fields
     for ind, row in enumerate(st.session_state.table_data):
-        cols = st.columns([1, 2, 0.6])
+        cols = st.columns([1, 2])
 
         # Column for Question Number Input
         with cols[0]:
@@ -115,18 +117,18 @@ if __name__ == "__main__":
             row['competency'] = st.selectbox("Competency", categories_shortened,
                                              index=categories_shortened.index(row['competency']),
                                              key=f'comp_{ind}')
+    col1, spacer2, col2 = st.columns([2, 5.5, 2])
 
-        # Column for Delete Button
-        with cols[2]:
-            if st.button("Delete", key=f'del_{ind}'):
-                delete_row(ind)
+    with col1:
+        st.button("Add New Row", on_click=add_row)
 
-    # Buttons to add a new row
-    st.button("Add Row", on_click=add_row)
+    with col2:
+        st.button("Delete Last Row", on_click=lambda: delete_row(-1))
+
+
+    # add some whitespace
+    st.write("")
 
     if st.button('Save Test'):
         save_test()
-
-        st.success(
-            'Save successful.'
-        )
+        st.success('Save successful.')
