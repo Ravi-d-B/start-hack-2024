@@ -285,6 +285,22 @@ def get_all_student_test_evaluations():
     conn.close()
     return student_test_evaluations
 
+def get_student_test_evaluation_for_competency(student_id, competency_id):
+   # Use context managers for handling database connections and cursors
+        with sqlite3.connect('druid.db') as conn:
+            cursor = conn.cursor()
+            # Use parameterized queries to prevent SQL injection
+            cursor.execute('SELECT * FROM student_test_evaluations WHERE student_id = ? AND test_competency_id = ?', (student_id, competency_id))
+            # Fetch the first record
+            row = cursor.fetchone()
+            if row:
+                # Only attempt to create the object if data was found
+                student_test_evaluation = StudentTestEvaluation(*row)
+                return student_test_evaluation
+            else:
+                # Handle cases where no data is found
+                return None
+
 def seed_database():
     conn = sqlite3.connect('druid.db')
     # Insert sample data into the 'students' table
