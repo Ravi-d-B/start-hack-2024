@@ -1,5 +1,5 @@
 import streamlit as st
-from app.streamlit_app.database import setup_database, get_students, add_to_students, add_to_competency_types, get_competency_types, add_to_tests, get_tests, add_test_competency_to_test, get_test_evaluations, get_all_test_evaluations, add_student_to_tests, add_test_evaluation_to_student, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations, get_test_students, seed_database
+from app.streamlit_app.database import setup_database, get_students, add_to_students, add_to_competency_types, get_competency_types, add_to_tests, get_tests, add_test_competency_to_test, get_test_competencies, get_all_test_competencies, add_student_to_tests, add_test_evaluation_to_student, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations, get_test_students, seed_database
 
 def main():
     setup_database()
@@ -27,21 +27,21 @@ def main():
         for student_test in student_tests:
 
             st.write(student_test.id, student_test.test_name)
-            #Write test evaluations
-            test_evaluations = get_student_test_evaluations(student.id, student_test.id)
-            for test_evaluation in test_evaluations:
+            #Write test competencies
+            test_competencies = get_student_test_evaluations(student.id, student_test.id)
+            for test_evaluation in test_competencies:
                 st.write('Student test evaluation', test_evaluation.id, "Evaluation id:", test_evaluation.test_competency_id, "Score:", test_evaluation.score, "Comments:", test_evaluation.comments)
 
     st.write("Add evaluation type:")
-    evaluation_type = st.text_input("Enter evaluation type")
+    competency_type = st.text_input("Enter evaluation type")
     if st.button("Add evaluation type"):
-        add_to_competency_types(evaluation_type)
-        st.success(f"Evaluation type {evaluation_type} added successfully!")
+        add_to_competency_types(competency_type)
+        st.success(f"Evaluation type {competency_type} added successfully!")
 
     st.write("Evaluation types:")
-    evaluation_types = get_competency_types()
-    for evaluation_type in evaluation_types:
-        st.write(evaluation_type.id, evaluation_type.type)
+    competency_types = get_competency_types()
+    for competency_type in competency_type:
+        st.write(competency_type.id, competency_type.type)
 
     st.write("Add test:")
     # Test name input and call to add_to_tests after button click
@@ -54,11 +54,11 @@ def main():
     tests = get_tests()
     for test in tests:
         st.write(test.id, test.test_name)
-        # Show test evaluations
-        test_evaluations = get_test_evaluations(test.id)
-        st.write('Evaluations:')
-        for test_evaluation in test_evaluations:
-            st.write('Test id:', test_evaluation.test_id, "Evaluation id:", test_evaluation.evaluation_type_id)
+        # Show test competencies
+        test_competencies = get_test_competencies(test.id)
+        st.write('Competencies:')
+        for test_competency in test_competencies:
+            st.write('Test id:', test_competency.test_id, "Competency type id:", test_competency.competency_type_id)
         
         #also students
         test_students = get_test_students(test.id)
@@ -66,12 +66,13 @@ def main():
         for test_student in test_students:
             st.write('Test student id:', test_student.id, "Student id:", test_student.student_id)
 
-    st.write("Add test evaluation to test:")
+    st.write("Add test competency to test:")
     test_id = st.text_input("Enter test id")
-    evaluation_type_id = st.text_input("Enter evaluation type id")
-    if st.button("Add test evaluation to test"):
-        add_test_competency_to_test(test_id, evaluation_type_id)
-        st.success(f"Test evaluation added successfully!")
+    competency_type_id = st.text_input("Enter competency type id")
+    question_str = st.text_input("Enter questions")
+    if st.button("Add test competency to test"):
+        add_test_competency_to_test(test_id, competency_type_id, question_str)
+        st.success(f"Test competency added successfully!")
 
     st.write("Add test to student:")
     student_test_student_id = st.text_input("Enter student id to add test to")
@@ -82,11 +83,11 @@ def main():
 
     st.write("Add test evaluation to student:")
     evaluation_student_id = st.text_input("Enter student id to add evaluation to")
-    evaluation_test_evaluation_id = st.text_input("Enter evaluation id")
+    evaluation_test_competency_id = st.text_input("Enter competency id")
     score = st.text_input("Enter score")
     comments = st.text_input("Enter comments")
-    if st.button("Add test evaluation to student"):
-        add_test_evaluation_to_student(evaluation_student_id, evaluation_test_evaluation_id, score, comments)
+    if st.button("Add test competency to student"):
+        add_test_evaluation_to_student(evaluation_student_id, evaluation_test_competency_id, score, comments)
         st.success(f"Test evaluation added successfully!")
 
     # All student test evaluations
