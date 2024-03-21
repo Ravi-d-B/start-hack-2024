@@ -45,15 +45,13 @@ def save_test():
         add_test_competency_to_test(test_id, comp_id, question_numbers)
 
 
+def clear_table():
+    st.session_state.competencies = {}
+    st.session_state.table_data = []
+
 def initialize_test_table():
     if 'competencies' not in st.session_state:
         st.session_state.competencies = {}
-
-    subjects = get_all_subjects()
-    if 'subject' not in st.session_state:
-        st.session_state.subject = subjects[0]
-    st.session_state.subject = st.selectbox("Select a subject", subjects,
-                                            index=subjects.index(st.session_state.subject))
 
     if 'table_data' not in st.session_state:
         st.session_state.table_data = []
@@ -66,6 +64,13 @@ def initialize_test_table():
 
     if 'test_date' not in st.session_state:
         st.session_state.test_date = dt.datetime.now().date()
+
+    subjects = get_all_subjects()
+    if 'subject' not in st.session_state:
+        st.session_state.subject = subjects[0]
+    st.session_state.subject = st.selectbox("Select a subject", subjects,
+                                            index=subjects.index(st.session_state.subject),
+                                            on_change=clear_table)
 
 
 if __name__ == "__main__":
@@ -82,8 +87,9 @@ if __name__ == "__main__":
                                                )
 
     categories = get_compentencies_for_subject_code(st.session_state.subject)["bezeichnung"]
+    print(categories)
     categories_shortened = list(categories.str.replace(COMP_STR_CUTOFF, ""))
-
+    print(categories_shortened)
     st.session_state.num_questions = st.number_input('Number of Questions', min_value=1,
                                                      value=st.session_state.num_questions, step=1)
 
@@ -103,6 +109,7 @@ if __name__ == "__main__":
 
         # Column for Competency Selection
         with cols[1]:
+            print(categories_shortened)
             row['competency'] = st.selectbox("Competency", categories_shortened,
                                              index=categories_shortened.index(row['competency']),
                                              key=f'comp_{ind}')
