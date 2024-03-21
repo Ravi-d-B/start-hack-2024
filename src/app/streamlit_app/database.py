@@ -14,6 +14,19 @@ class StudentTest:
         self.student_id = student_id
         self.test_id = test_id
 
+    def get_student(self):
+        conn = sqlite3.connect('druid.db')
+        cursor = conn.execute(f'SELECT * FROM students WHERE id = {self.student_id}')
+        student = Student(*cursor.fetchone())
+        conn.close()
+        return student
+
+    def get_test(self):
+        conn = sqlite3.connect('druid.db')
+        cursor = conn.execute(f'SELECT * FROM tests WHERE id = {self.test_id}')
+        test = Test(*cursor.fetchone())
+        conn.close()
+        return test
 
 class Test:
     def __init__(self, id, test_name):
