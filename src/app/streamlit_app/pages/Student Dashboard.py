@@ -7,8 +7,7 @@ from app.streamlit_app.database import get_students, get_student_tests, get_stud
 
 # st.title('Student Category Scores Over Tests')
 
-<<<<<<< HEAD
-=======
+
 students = get_students()
 # Dropdown of students
 student = st.selectbox('Select a student', students, format_func=lambda student: student.name)
@@ -41,7 +40,6 @@ if 'grades' in st.session_state and 'question_categories' in st.session_state an
     # Convert grades to numeric values
     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
->>>>>>> 4e1638dfd0f67a431c8eea029127953ccab546e7
 
 # st.write(list())
 for item in get_student_tests(1):
