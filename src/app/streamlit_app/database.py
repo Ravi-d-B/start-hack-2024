@@ -74,6 +74,15 @@ def get_tests():
     return tests
 
 
+def get_test_by_name(test_name):
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute(f"SELECT * FROM tests WHERE test_name = '{test_name}'")
+    tests = [Test(*row) for row in cursor.fetchall()]
+    test = tests[-1] if tests else None
+    conn.close()
+    return test
+
+
 def add_student_to_tests(student_id, test_id):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO student_tests (student_id, test_id) VALUES ({student_id}, {test_id})")
@@ -105,6 +114,15 @@ def add_to_competency_types(type):
     conn.execute(f"INSERT INTO competency_types (type) VALUES ('{type}')")
     conn.commit()
     conn.close()
+
+
+def get_competency_type_by_name(name):
+    conn = sqlite3.connect('druid.db')
+    cursor = conn.execute(f"SELECT * FROM competency_types WHERE type = '{name}'")
+    competency_types = [CompetencyType(*row) for row in cursor.fetchall()]
+    competency_type = competency_types[-1] if competency_types else None
+    conn.close()
+    return competency_type
 
 
 def get_competency_types():
