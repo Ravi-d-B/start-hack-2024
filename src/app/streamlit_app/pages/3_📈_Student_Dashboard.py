@@ -2,6 +2,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 from app.streamlit_app.database import get_student_tests
+from app.streamlit_app.utils import get_prompt_template, client
 
 from app.streamlit_app.database import (
     get_students, get_student_tests,
@@ -176,3 +177,43 @@ if st.button("Print Data"):
 #     st.pyplot(plt)
 # else:
 #     st.write('No grades available to display.')
+
+
+def get_student_information(): 
+    return {
+        "name": "Callum",
+        "age": 10,
+        "grade": 5,
+    }
+
+
+student_id = "Callum"
+information = get_student_information()
+
+if id not in st.session_state:
+    st.session_state[id] = get_prompt_template(student_id, information)
+prompt_template = st.session_state[id]
+
+# Display chat messages from history on app rerun
+for message in prompt_template:
+    if message["role"] != 'system':
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+client = client()
+
+if st.button("Ask AI"):
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[
+                {"role": m["role"], "content": m["content"]}
+                for m in prompt_template
+            ],
+            temperature=0.2,
+            stream=True
+        )
+        response = st.write_stream(stream)
+    prompt_template.append({"role": "assistant", "content": response})
