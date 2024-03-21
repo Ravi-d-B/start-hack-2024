@@ -1,36 +1,53 @@
+# Function to display scores as a line plot
 import streamlit as st
+import matplotlib.pyplot as plt
+from app.streamlit_app.database import get_student_tests
+from app.streamlit_app.database import (
+    get_students, get_student_tests,
+    get_student_test_evaluations, get_all_student_test_evaluations
+)
+from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code
 
-from app.streamlit_app.database import get_all_test_competency_types
-from app.data.competencies import get_all_subjects
+from app.streamlit_app.database import (
+    get_students, get_student_tests,
+    get_student_test_evaluations, get_all_student_test_evaluations
+)
 
+
+# st.title('Student Category Scores Over Tests')
+
+def plot_results(df):
+    fig = plt.figure(figsize=(10, 5))
+    plt.plot(df['test_date'], df['score'], marker='o')
+    # Map axis labels [0,1,2,3,4] -> ['','Bad','Poor','Good','Excellent']
+    plt.yticks([0, 1, 2, 3, 4, 5], ['',
+                                    'Das Klappt noch nicht',
+                                    'Das Gelingt mit teilweise',
+                                    'Das kann ich gut',
+                                    'Das kann ich sehr gut',
+                                    ''])
+    st.pyplot(fig)
+
+
+students = get_students()
+
+# Dropdown of students
+student = st.selectbox('Select a student',
+                       students,
+                       format_func=lambda student: student.name)
 subjects = get_all_subjects()
 if 'subject' not in st.session_state:
     st.session_state.subject = subjects[0]
-
-# Initialize selected_competencies in session_state if not present
-if 'selected_competencies' not in st.session_state:
-    st.session_state.selected_competencies = []
-
-# Subject selection
 st.session_state.subject = st.selectbox("Select a subject", subjects,
                                         index=subjects.index(st.session_state.subject))
 
-competencies = sorted(get_all_test_competency_types(), key=lambda x: x.code)
+student = students[0]
 
-for comp in competencies:
-    if comp.code.startswith(st.session_state.subject):
-        # Generate a unique key for each checkbox to prevent conflicts
-        unique_key = f"checkbox_{comp.code}"
+evals = student.get_student_graph_data()
 
-        # Determine if this competency is currently selected
-        is_selected = unique_key in st.session_state.selected_competencies
+# Filter on subject
+evals = evals.query('code.str.contains(@st.session_state.subject)')
+# average scores for the same code on the same date
+evals = evals.groupby(['test_date', 'code'])["score"].mean().reset_index()
 
-        # Create the checkbox, setting it to the current state of selection
-        current_selection = st.checkbox(f'{comp.code} - {comp.type}', value=is_selected,
-                                        key=unique_key)
-
-        # Update the session state based on the checkbox interaction
-        if current_selection and unique_key not in st.session_state.selected_competencies:
-            st.session_state.selected_competencies.append(unique_key)
-        elif not current_selection and unique_key in st.session_state.selected_competencies:
-            st.session_state.selected_competencies.remove(unique_key)
+plot_results(evals)
