@@ -2,7 +2,11 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
+<<<<<<< HEAD
 import pandas as pd
+=======
+import toml
+>>>>>>> 2111aad2918cdd364bbceb13dabbe3eca6142c55
 from app.streamlit_app.database import get_student_tests
 from app.streamlit_app.utils import get_prompt_template, client
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -12,9 +16,13 @@ from app.streamlit_app.database import (
     get_student_test_evaluations, get_all_student_test_evaluations
 )
 
-from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code, get_full_comp_df
+from app.data.competencies import (
+    get_all_subjects, get_compentencies_for_subject_code,
+    get_full_comp_df
+)
 
 from app.streamlit_app.graph import create_graph
+
 plt.rcParams['font.size'] = 20
 
 # set font to Arial
@@ -24,6 +32,7 @@ plt.rcParams['font.sans-serif'] = 'Arial'
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = ['Arial']  # Or any font you like
 
+streamlit_theme = toml.load(".streamlit/config.toml")['theme']
 
 st.title('Student Progression')
 
@@ -40,18 +49,18 @@ def plot_results(df):
     num_rows = max(np.ceil(num_cats / 2).astype(int), 1)
 
     # Create subplots in a n x 2 layout, adjusting for when num_cats is 1 or 2
+    plot_settings = {'sharex': False, 'sharey': True, 'dpi': 1200,
+                     'facecolor': streamlit_theme['backgroundColor']}
+
     if num_cats <= 2:
-        fig, axs = plt.subplots(num_rows, num_cats, figsize=(10 * num_cats, 5 * num_rows),
-                                sharex=False, sharey=True, dpi=600)
+        fig, axs = plt.subplots(num_rows, num_cats, figsize=(10*num_cats, 5*num_rows),**plot_settings)
         # Ensure axs is 2-dimensional
         axs = np.atleast_2d(axs)
     else:
-        fig, axs = plt.subplots(num_rows, 2, figsize=(30, 7 * num_rows), sharex=False,
-                                sharey=True, dpi=600)
+        fig, axs = plt.subplots(num_rows, 2,figsize=(30, 7*num_rows), **plot_settings)
 
     # Flatten the axs array to simplify indexing
     axs = axs.flatten()
-
 
     for i, cat_val in enumerate(cats):
         # Filter on concatenated categories
@@ -59,7 +68,8 @@ def plot_results(df):
 
         title_part_1 = df_cat['code'].iloc[0].rsplit('.', 2)[0:2]
         title_part_2 = df_cat['code'].iloc[0].rsplit('.', 1)[0]
-        # Assuming get_full_comp_df() function fetches a DataFrame with 'code' and 'bezeichnung' columns
+        # Assuming get_full_comp_df() function fetches a DataFrame with 'code' and 'bezeichnung'
+        # columns
         title_part_1 = get_full_comp_df().query('code == @title_part_1')['bezeichnung'].iloc[0]
         title_part_2 = get_full_comp_df().query('code == @title_part_2')['bezeichnung'].iloc[0]
 
@@ -145,9 +155,6 @@ if selected_option != " ":
 
     # Display the graph
     st.graphviz_chart(graph, use_container_width=True)
-
-
-
 
 information = student.get_student_graph_data()
 

@@ -4,7 +4,7 @@ from app.data.competencies import get_all_subjects, get_compentencies_for_subjec
 from app.streamlit_app.database import (
     add_to_tests, add_test_competency_to_test,
     get_test_by_name, get_all_test_competency_types,
-    get_competency_type_by_name
+    get_competency_type_by_name, get_students, add_student_to_tests
 )
 
 import datetime as dt
@@ -43,6 +43,11 @@ def save_test():
         competency = COMP_STR_CUTOFF + competency
         comp_id = get_competency_type_by_name(competency).id
         add_test_competency_to_test(test_id, comp_id, question_numbers)
+
+    students = get_students()
+    for student in students:
+        add_student_to_tests(student.id, test_id)
+        print(student.id)
 
 
 def clear_table():
@@ -87,9 +92,7 @@ if __name__ == "__main__":
                                                )
 
     categories = get_compentencies_for_subject_code(st.session_state.subject)["bezeichnung"]
-    # print(categories)
     categories_shortened = list(categories.str.replace(COMP_STR_CUTOFF, ""))
-    # print(categories_shortened)
     st.session_state.num_questions = st.number_input('Number of Questions', min_value=1,
                                                      value=st.session_state.num_questions, step=1)
 
@@ -109,7 +112,6 @@ if __name__ == "__main__":
 
         # Column for Competency Selection
         with cols[1]:
-            # print(categories_shortened)
             row['competency'] = st.selectbox("Competency", categories_shortened,
                                              index=categories_shortened.index(row['competency']),
                                              key=f'comp_{ind}')
