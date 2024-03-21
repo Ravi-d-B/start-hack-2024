@@ -54,7 +54,7 @@ def plot_results(df):
                      'facecolor': streamlit_theme['backgroundColor']}
 
     if num_cats <= 2:
-        fig, axs = plt.subplots(num_rows, num_cats, figsize=(10*num_cats, 5*num_rows),**plot_settings)
+        fig, axs = plt.subplots(num_rows, num_cats, figsize=(30, 7*num_rows),**plot_settings)
         # Ensure axs is 2-dimensional
         axs = np.atleast_2d(axs)
     else:
