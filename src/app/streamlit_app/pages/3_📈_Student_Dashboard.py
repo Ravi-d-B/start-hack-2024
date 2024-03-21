@@ -145,8 +145,6 @@ if selected_option != " ":
     st.graphviz_chart(graph, use_container_width=True)
 
 
-if st.button("Print Data"):
-    data = student.get_student_graph_data()
 
 
 information = student.get_student_graph_data()
@@ -178,3 +176,6 @@ if st.button("Ask AI for a student progress summary"):
         )
         response = st.write_stream(stream)
     prompt_template.append({"role": "assistant", "content": response})
+
+if st.button("Print Data"):
+    data = student.get_student_graph_data()
