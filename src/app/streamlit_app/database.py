@@ -1,25 +1,30 @@
 import sqlite3
 
+
 class Student:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-    
+
+
 class StudentTest:
     def __init__(self, id, student_id, test_id):
         self.id = id
         self.student_id = student_id
         self.test_id = test_id
 
+
 class Test:
     def __init__(self, id, test_name):
         self.id = id
         self.test_name = test_name
 
+
 class EvaluationType:
     def __init__(self, id, type):
         self.id = id
         self.type = type
+
 
 class TestEvaluation:
     def __init__(self, id, test_id, evaluation_type_id):
@@ -27,19 +32,22 @@ class TestEvaluation:
         self.test_id = test_id
         self.evaluation_type_id = evaluation_type_id
 
+
 class StudentTestEvaluation:
-    def __init__(self, id, student_id, test_evaluation_id, score = None, comments = None):
+    def __init__(self, id, student_id, test_evaluation_id, score=None, comments=None):
         self.id = id
         self.student_id = student_id
         self.test_evaluation_id = test_evaluation_id
-        self.score = score # 1, 1.5, 2, 2.5, 3, 3.5, 4
+        self.score = score  # 1, 1.5, 2, 2.5, 3, 3.5, 4
         self.comments = comments
+
 
 def add_to_students(name):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO students (name) VALUES ('{name}')")
     conn.commit()
     conn.close()
+
 
 def get_students():
     conn = sqlite3.connect('druid.db')
@@ -49,11 +57,13 @@ def get_students():
     conn.close()
     return students
 
+
 def add_to_tests(test_name):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO tests (test_name) VALUES ('{test_name}')")
     conn.commit()
     conn.close()
+
 
 def get_tests():
     conn = sqlite3.connect('druid.db')
@@ -62,11 +72,13 @@ def get_tests():
     conn.close()
     return tests
 
+
 def add_student_to_tests(student_id, test_id):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO student_tests (student_id, test_id) VALUES ({student_id}, {test_id})")
     conn.commit()
     conn.close()
+
 
 def get_student_tests(student_id):
     # conn = sqlite3.connect('druid.db')
@@ -75,10 +87,12 @@ def get_student_tests(student_id):
     # conn.close()
     # Should return tests for student not student_tests
     conn = sqlite3.connect('druid.db')
-    cursor = conn.execute(f'SELECT * FROM tests WHERE id IN (SELECT test_id FROM student_tests WHERE student_id = {student_id})')
+    cursor = conn.execute(
+        f'SELECT * FROM tests WHERE id IN (SELECT test_id FROM student_tests WHERE student_id = {student_id})')
     tests = [Test(*row) for row in cursor.fetchall()]
 
     return tests
+
 
 # def add_to_evaluations(test_id, evaluation_criteria):
 #     conn = sqlite3.connect('druid.db')
@@ -91,6 +105,7 @@ def add_to_evaluation_types(type):
     conn.commit()
     conn.close()
 
+
 def get_evaluation_types():
     conn = sqlite3.connect('druid.db')
     cursor = conn.execute('SELECT * FROM evaluation_types')
@@ -98,11 +113,13 @@ def get_evaluation_types():
     conn.close()
     return evaluation_types
 
+
 def add_test_evaluation_to_test(test_id, evaluation_type_id):
     conn = sqlite3.connect('druid.db')
     conn.execute(f"INSERT INTO test_evaluations (test_id, evaluation_type_id) VALUES ({test_id}, {evaluation_type_id})")
     conn.commit()
     conn.close()
+
 
 def get_all_test_evaluations():
     conn = sqlite3.connect('druid.db')
@@ -113,18 +130,20 @@ def get_all_test_evaluations():
 
 
 def get_test_evaluations(test_id):
-
     conn = sqlite3.connect('druid.db')
     cursor = conn.execute(f'SELECT * FROM test_evaluations WHERE test_id = {test_id}')
     test_evaluations = [TestEvaluation(*row) for row in cursor.fetchall()]
     conn.close()
     return test_evaluations
 
+
 def add_test_evaluation_to_student(student_id, test_evaluation_id, score, comments):
     conn = sqlite3.connect('druid.db')
-    conn.execute(f"INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES ({student_id}, {test_evaluation_id}, {score}, '{comments}')")
+    conn.execute(
+        f"INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES ({student_id}, {test_evaluation_id}, {score}, '{comments}')")
     conn.commit()
     conn.close()
+
 
 def get_test_students(test_id):
     conn = sqlite3.connect('druid.db')
@@ -133,14 +152,17 @@ def get_test_students(test_id):
     conn.close()
     return test_students
 
+
 ## Should also include a test id
 def get_student_test_evaluations(student_id, test_id):
     conn = sqlite3.connect('druid.db')
-    cursor = conn.execute(f'SELECT ste.id, ste.student_id, ste.test_evaluation_id, ste.score, ste.comments FROM student_test_evaluations ste WHERE ste.student_id = {student_id} AND ste.test_evaluation_id IN (SELECT te.id FROM test_evaluations te WHERE te.test_id = {test_id})')
+    cursor = conn.execute(
+        f'SELECT ste.id, ste.student_id, ste.test_evaluation_id, ste.score, ste.comments FROM student_test_evaluations ste WHERE ste.student_id = {student_id} AND ste.test_evaluation_id IN (SELECT te.id FROM test_evaluations te WHERE te.test_id = {test_id})')
     student_test_evaluations = [StudentTestEvaluation(*row) for row in cursor.fetchall()]
     print(student_test_evaluations)
     conn.close()
     return student_test_evaluations
+
 
 def get_all_student_test_evaluations():
     conn = sqlite3.connect('druid.db')
@@ -149,9 +171,10 @@ def get_all_student_test_evaluations():
     conn.close()
     return student_test_evaluations
 
+
 def seed_database():
     conn = sqlite3.connect('druid.db')
-     # Insert sample data into the 'students' table
+    # Insert sample data into the 'students' table
     conn.execute("INSERT INTO students (name) VALUES ('Alice')")
     conn.execute("INSERT INTO students (name) VALUES ('Bob')")
     conn.execute("INSERT INTO students (name) VALUES ('Charlie')")
@@ -180,9 +203,12 @@ def seed_database():
 
     # Assuming the IDs for 'test_evaluations' start from 1 and increment
     # Insert sample data into the 'student_test_evaluations' table with scores and comments
-    conn.execute("INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (1, 1, 3.5, 'Good job')")
-    conn.execute("INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (2, 2, 4, 'Excellent')")
-    conn.execute("INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (3, 3, 1, 'Needs improvement')")
+    conn.execute(
+        "INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (1, 1, 3.5, 'Good job')")
+    conn.execute(
+        "INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (2, 2, 4, 'Excellent')")
+    conn.execute(
+        "INSERT INTO student_test_evaluations (student_id, test_evaluation_id, score, comments) VALUES (3, 3, 1, 'Needs improvement')")
 
     conn.commit()
 
