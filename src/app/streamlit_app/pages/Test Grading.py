@@ -5,29 +5,29 @@ st.set_page_config(
     layout="wide",
 )
 
-first_names = ["John", "Emily", "Michael", "Sarah", "Jessica", "Jacob", "Mohamed", "Sophia", "Daniel", "Olivia",
-               "David", "Ava", "Joseph", "Emma"]
-last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
-              "Hernandez", "Lopez", "Gonzalez", "Wilson"]
+first_names = ["John", "Emily", "Michael"]
+last_names = ["Smith", "Johnson", "Williams"]
 
 st.title("Test Grading")
 
 # Define your list of options
-options = ['Test 1', 'Test 2', 'Test 3']
+options = ['Test 1', 'Test 2']
 
-test_questions = ["Is it okay?", "Is it good?"]
+all_questions = [["Is it okay?", "Is it good?"],["Why", "Where", "When"]]
+
+test_questions = {test: questions for test, questions in zip(options, all_questions)}
 
 # Use the select box widget
 option = st.selectbox(
     'Select Test for Grading',
-    options)
+    test_questions.keys())
 
 # Create a list of dictionaries, with each dictionary representing a row
 data = []
 for i, (first, last) in enumerate(zip(first_names, last_names)):
     data.clear()
     st.subheader(f"{first} {last}")
-    for (question) in zip(test_questions):
+    for (question) in zip(test_questions[option]):
         row = {
             "Question": question,
             "Das Klappt noch nicht": False,
