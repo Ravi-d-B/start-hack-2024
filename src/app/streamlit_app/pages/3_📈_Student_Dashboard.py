@@ -3,50 +3,119 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from app.streamlit_app.database import get_student_tests
 
+from app.streamlit_app.database import (
+    get_students, get_student_tests,
+    get_student_test_evaluations, get_all_student_test_evaluations
+)
 
-from app.streamlit_app.database import get_students, get_student_tests, get_student_test_evaluations, get_all_student_test_evaluations
+from app.data.competencies import get_all_subjects, get_compentencies_for_subject_code
 
-# st.title('Student Category Scores Over Tests')
+st.title('Student Progression')
+
+
+def plot_results(df):
+    if df.empty:
+        st.write("No data to display")
+        return
+    # Count number of unique cat 2
+    cats = (df['cat1'] + df['cat2']).unique()
+    num_cats = len(cats)
+
+    # make horizontal plots for each cat2
+    fig, ax = plt.subplots(num_cats, 1, figsize=(10, 5 * num_cats),
+                           sharex=True)
+
+    for i, cat_val in enumerate(cats):
+        # Filter on cat2
+        df_cat = df.query('(cat1 + cat2) == @cat_val')
+
+        # Set title to code but last part dropped
+        ax[i].set_title(df_cat['code'].iloc[0].rsplit('.', 1)[0])
+        # Make a line for every cat3
+        for cat3 in df_cat['cat3'].unique():
+            df_cat3 = df_cat.query('cat3 == @cat3')
+            print(df_cat3)
+            ax[i].plot(df_cat3['test_date'], df_cat3['score'],
+                       marker='o',
+                       label=df_cat3['code'].iloc[0])
+        ax[i].legend()
+        ax[i].set_yticks([0, 1, 2, 3, 4, 5])
+        ax[i].set_yticklabels(['',
+                               'Das Klappt noch nicht',
+                               'Das Gelingt mit teilweise',
+                               'Das kann ich gut',
+                               'Das kann ich sehr gut',
+                               ''])
+
+    st.pyplot(fig)
+
 
 students = get_students()
+
 # Dropdown of students
-student = st.selectbox('Select a student', students, format_func=lambda student: student.name)
+student = st.selectbox('Select a student',
+                       students,
+                       format_func=lambda student: student.name)
+subjects = get_all_subjects()
+if 'subject' not in st.session_state:
+    st.session_state.subject = subjects[0]
+st.session_state.subject = st.selectbox("Select a subject", subjects,
+                                        index=subjects.index(st.session_state.subject))
+
+evals = student.get_student_graph_data()
+
+# Filter on subject
+evals = evals.query('code.str.contains(@st.session_state.subject)')
+# average scores for the same code on the same date
+evals = evals.groupby(['test_date', 'code'])["score"].mean().reset_index()
+
+# Split code into columns
+evals["subjects"] = evals["code"].str.split(".").str[0]
+evals["cat1"] = evals["code"].str.split(".").str[1]
+evals["cat2"] = evals["code"].str.split(".").str[2]
+evals["cat3"] = evals["code"].str.split(".").str[3]
+
+plot_results(evals)
 
 if st.button("Print Data"):
     data = student.get_student_graph_data()
 
-# Display scores as text
-st.write(f'Scores for {student.name}:')
-tests = get_student_tests(student.id)
+# # Display scores as text
+# st.write(f'Scores for {student.name}:')
+# tests = get_student_tests(student.id)
+#
+# # Dropdown of tests
+# test = st.selectbox('Select a test', tests, format_func=lambda test: test.test_name)
+#
+# test_evaluations = get_student_test_evaluations(student.id, test.id)
+# # Display scores as text
+# st.success(f'Scores for {test.test_name}:')
+# for evaluation in test_evaluations:
+#     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type},
+#     Score: {evaluation.score}, Comments: {evaluation.comments}')
+#
+# # Display evaluations
+# evaluations = student.get_evaluations()
+# st.success('Evaluations:')
+# for evaluation in evaluations:
+#     st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type} Comments
+#     {evaluation.comments} Score: {evaluation.score}')
+#
+#
+#
+# if 'grades' in st.session_state and 'question_categories' in st.session_state and
+# st.session_state.grades:
+#     # Convert grades to numeric values
+#     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
+#     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
+#
+# # st.write(list())
+# for item in get_student_tests(1):
+#     print(item.test_name)
 
-# Dropdown of tests
-test = st.selectbox('Select a test', tests, format_func=lambda test: test.test_name)
 
-test_evaluations = get_student_test_evaluations(student.id, test.id)
-# Display scores as text
-st.success(f'Scores for {test.test_name}:')
-for evaluation in test_evaluations:
-    st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type}, Score: {evaluation.score}, Comments: {evaluation.comments}')
-
-# Display evaluations
-evaluations = student.get_evaluations()
-st.success('Evaluations:')
-for evaluation in evaluations:
-    st.write(f'Category: {evaluation.get_test_competency().get_competency_type().type} Comments {evaluation.comments} Score: {evaluation.score}')
-
-
-
-if 'grades' in st.session_state and 'question_categories' in st.session_state and st.session_state.grades:
-    # Convert grades to numeric values
-    grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
-    test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
-
-# st.write(list())
-for item in get_student_tests(1):
-    print(item.test_name)
-
-
-# if 'grades' in st.session_state and 'question_categories' in st.session_state and st.session_state.grades:
+# if 'grades' in st.session_state and 'question_categories' in st.session_state and
+# st.session_state.grades:
 #     # Convert grades to numeric values
 #     grade_mapping = {'Bad': 1, 'Poor': 2, 'Good': 3, 'Excellent': 4}
 #     test_categories_scores = {} # Format: {('Algebra', test_number): [scores], ...}
