@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_modal import Modal
 
-
+from openpyxl.styles import Font, PatternFill, Alignment
 
 from app.streamlit_app.database import *
 
