@@ -22,10 +22,10 @@ class Test:
 
 
 class CompetencyType:
-    def __init__(self, id, type, subject):
+    def __init__(self, id, type, code):
         self.id = id
         self.type = type
-        self.subject = subject
+        self.code = code
 
 
 class TestCompetency:
@@ -133,9 +133,9 @@ def get_competency_type_by_name(name):
     conn.close()
     return competency_type
 
-def get_competency_type_by_subject(subject):
+def get_competency_type_by_code(code):
     conn = sqlite3.connect('druid.db')
-    cursor = conn.execute(f"SELECT * FROM competency_types WHERE subject = '{subject}'")
+    cursor = conn.execute(f"SELECT * FROM competency_types WHERE code = '{code}'")
     competency_types = [CompetencyType(*row) for row in cursor.fetchall()]
     conn.close()
     return competency_types
@@ -227,14 +227,15 @@ def seed_database():
     conn.execute("INSERT INTO tests (test_name) VALUES ('History Test')")
 
 
-    all_competencies = get_compentencies_for_subject_code("")["bezeichnung"]
-    for competency in all_competencies:
-        conn.execute(f"INSERT INTO competency_types (type) VALUES ('{competency}')")
+    all_competencies = get_compentencies_for_subject_code("")[['bezeichnung', 'code']]
+    for competency, code in all_competencies:
 
-    # Insert sample data into the 'competency_types' table
-    conn.execute("INSERT INTO competency_types (type) VALUES ('Subtraction')")
-    conn.execute("INSERT INTO competency_types (type) VALUES ('Addition')")
-    conn.execute("INSERT INTO competency_types (type) VALUES ('Multiplication')")
+        conn.execute(f"INSERT INTO competency_types (type, code) VALUES ('{competency}', '{code}')")
+
+    # # Insert sample data into the 'competency_types' table
+    conn.execute("INSERT INTO competency_types (type, code) VALUES ('Subtraction', '123')")
+    conn.execute("INSERT INTO competency_types (type, code) VALUES ('Addition', '222')")
+    conn.execute("INSERT INTO competency_types (type, code) VALUES ('Multiplication', '333')")
 
     # Assuming the IDs for 'tests' and 'test_competencies' start from 1 and increment
     # Insert sample data into the 'test_competencies' table
@@ -281,7 +282,7 @@ def setup_database():
     conn.execute('''CREATE TABLE IF NOT EXISTS competency_types (
         id INTEGER PRIMARY KEY,
         type VARCHAR(255) NOT NULL,
-        subject VARCHAR(255)
+        code VARCHAR(255) NOT NULL
     )''')
 
     conn.execute('''CREATE TABLE IF NOT EXISTS test_competencies (
