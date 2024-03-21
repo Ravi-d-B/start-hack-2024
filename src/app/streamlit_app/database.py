@@ -20,24 +20,24 @@ class Test:
         self.test_name = test_name
 
 
-class EvaluationType:
+class CompetencyType:
     def __init__(self, id, type):
         self.id = id
         self.type = type
 
 
-class TestEvaluation:
-    def __init__(self, id, test_id, evaluation_type_id):
+class TestCompetency:
+    def __init__(self, id, test_id, compentency_type_id):
         self.id = id
         self.test_id = test_id
-        self.evaluation_type_id = evaluation_type_id
+        self.evaluation_type_id = compentency_type_id
 
 
 class StudentTestEvaluation:
-    def __init__(self, id, student_id, test_evaluation_id, score=None, comments=None):
+    def __init__(self, id, student_id, competency_id, score=None, comments=None):
         self.id = id
         self.student_id = student_id
-        self.test_evaluation_id = test_evaluation_id
+        self.test_competency_id = competency_id
         self.score = score  # 1, 1.5, 2, 2.5, 3, 3.5, 4
         self.comments = comments
 
@@ -99,24 +99,24 @@ def get_student_tests(student_id):
 #     conn.execute(f"INSERT INTO evaluations (test_id, evaluation_criteria) VALUES ({test_id}, '{evaluation_criteria}')")
 #     conn.commit()
 #     conn.close()
-def add_to_evaluation_types(type):
+def add_to_competency_types(type):
     conn = sqlite3.connect('druid.db')
-    conn.execute(f"INSERT INTO evaluation_types (type) VALUES ('{type}')")
+    conn.execute(f"INSERT INTO competency_types (type) VALUES ('{type}')")
     conn.commit()
     conn.close()
 
 
-def get_evaluation_types():
+def get_competency_types():
     conn = sqlite3.connect('druid.db')
-    cursor = conn.execute('SELECT * FROM evaluation_types')
-    evaluation_types = [EvaluationType(*row) for row in cursor.fetchall()]
+    cursor = conn.execute('SELECT * FROM competency_types')
+    evaluation_types = [CompetencyType(*row) for row in cursor.fetchall()]
     conn.close()
     return evaluation_types
 
 
-def add_test_evaluation_to_test(test_id, evaluation_type_id):
+def add_test_competency_to_test(test_id, competency_type_id):
     conn = sqlite3.connect('druid.db')
-    conn.execute(f"INSERT INTO test_evaluations (test_id, evaluation_type_id) VALUES ({test_id}, {evaluation_type_id})")
+    conn.execute(f"INSERT INTO test_evaluations (test_id, evaluation_type_id) VALUES ({test_id}, {competency_type_id})")
     conn.commit()
     conn.close()
 
@@ -124,7 +124,7 @@ def add_test_evaluation_to_test(test_id, evaluation_type_id):
 def get_all_test_evaluations():
     conn = sqlite3.connect('druid.db')
     cursor = conn.execute('SELECT * FROM test_evaluations')
-    test_evaluations = [TestEvaluation(*row) for row in cursor.fetchall()]
+    test_evaluations = [TestCompetency(*row) for row in cursor.fetchall()]
     conn.close()
     return test_evaluations
 
@@ -132,7 +132,7 @@ def get_all_test_evaluations():
 def get_test_evaluations(test_id):
     conn = sqlite3.connect('druid.db')
     cursor = conn.execute(f'SELECT * FROM test_evaluations WHERE test_id = {test_id}')
-    test_evaluations = [TestEvaluation(*row) for row in cursor.fetchall()]
+    test_evaluations = [TestCompetency(*row) for row in cursor.fetchall()]
     conn.close()
     return test_evaluations
 
