@@ -5,7 +5,7 @@ DF_CSV = pd.read_csv(CSV_NAME, sep=";", encoding="utf-8")
 
 
 def get_all_subjects() -> list:
-    return list(DF_CSV["code"].dropna().str.split(".").str[0].unique())
+    return sorted(list(DF_CSV["code"].dropna().str.split(".").str[0].unique()))
 
 
 def get_compentencies_for_subject_code(
